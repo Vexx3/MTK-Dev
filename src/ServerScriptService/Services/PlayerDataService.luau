@@ -36,6 +36,7 @@ function Shared.OnStart()
 			local leaderstats = player:FindFirstChild("leaderstats")
 			if not leaderstats then return end
 
+			-- TODO: Refactor and fix
 			local gameTime = leaderstats.Time
 			if gameTime then
 				local timer = deltaTime
