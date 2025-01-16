@@ -23,11 +23,25 @@ local Profiles: { [Player]: typeof(PlayerStore:StartSessionAsync()) } = {}
 local Local = {}
 local Shared = {}
 
-function Local.OnStart()
+function Shared.OnStart()
 	Remotes.Start.OnServerEvent:Connect(function(player: Player)
 		local state = Shared.GetData(player)
 		if state then
 			Remotes.SetState:FireClient(player, state)
+		end
+	end)
+
+	RunService.Stepped:Connect(function(_, deltaTime)
+		for _, player in Players:GetPlayers() do
+			local leaderstats = player:FindFirstChild("leaderstats")
+			if not leaderstats then return end
+
+			local gameTime = leaderstats.Time
+			if gameTime then
+				local timer = deltaTime
+				print("Time is", math.floor(deltaTime))
+				gameTime.Value += math.floor(timer)
+			end
 		end
 	end)
 
@@ -41,7 +55,9 @@ end
 
 function Shared.UpdateState(player: Player, action: StateAction)
 	local profile = Profiles[player]
-	if not profile then return end
+	if not profile then
+		return
+	end
 
 	UpdateState(profile.Data, action)
 	Remotes.UpdateState:FireClient(player, action)
@@ -58,9 +74,14 @@ function Local.CreateLeaderstats(player: Player)
 	leaderstats.Name = "leaderstats"
 	leaderstats.Parent = player
 
-	local towers = Instance.new("IntValue")
+	local towers = Instance.new("NumberValue")
 	towers.Name = Configuration.TOWER_STAT_NAME
 	towers.Value = data.towers
+	towers.Parent = leaderstats
+
+	local gameTime = Instance.new("NumberValue")
+	gameTime.Name = "Time"
+	gameTime.Parent = leaderstats
 end
 
 function Local.LoadProfile(player: Player)
@@ -115,7 +136,12 @@ function Shared.UpdateTowers(player: Player, towerCount: number)
 		return
 	end
 
-	data.towers += towerCount
+	local leaderstats = player:FindFirstChild("leaderstats")
+	if not leaderstats then
+		return
+	end
+
+	leaderstats[Configuration.TOWER_STAT_NAME].Value = data.towers
 end
 
 return Shared
