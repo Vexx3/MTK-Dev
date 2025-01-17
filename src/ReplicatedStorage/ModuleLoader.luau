@@ -11,7 +11,7 @@ local function RequireModule(module: ModuleScript)
 		return
 	end
 
-	local import = require(module)
+	local import = require(module) :: ModuleScript
 
 	local onStart = import.OnStart
 	if onStart then

@@ -3,7 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Configuration = require(ReplicatedStorage.Configuration)
+local Configuration = require(ReplicatedStorage.Configs.Configuration)
 local UpdateState = require(ReplicatedStorage.Functions.UpdateState)
 local ProfileStore = require(ServerScriptService.Packages.ProfileStore)
 
@@ -28,21 +28,6 @@ function Shared.OnStart()
 		local state = Shared.GetData(player)
 		if state then
 			Remotes.SetState:FireClient(player, state)
-		end
-	end)
-
-	RunService.Stepped:Connect(function(_, deltaTime)
-		for _, player in Players:GetPlayers() do
-			local leaderstats = player:FindFirstChild("leaderstats")
-			if not leaderstats then return end
-
-			-- TODO: Refactor and fix
-			local gameTime = leaderstats.Time
-			if gameTime then
-				local timer = deltaTime
-				print("Time is", math.floor(deltaTime))
-				gameTime.Value += math.floor(timer)
-			end
 		end
 	end)
 
@@ -113,6 +98,8 @@ function Local.LoadProfile(player: Player)
 
 	Local.CreateLeaderstats(player)
 	Remotes.SetState:FireClient(player, profile.Data)
+
+	return nil
 end
 
 function Local.RemoveProfile(player: Player)

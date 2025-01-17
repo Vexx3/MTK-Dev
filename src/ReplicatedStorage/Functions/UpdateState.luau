@@ -1,4 +1,4 @@
-local PlayerData = require(script.Parent.Parent.Configuration)
+local PlayerData = require(script.Parent.Parent.Configs.Configuration)
 
 export type PlayerData = PlayerData.PlayerData
 
