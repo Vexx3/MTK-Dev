@@ -129,7 +129,7 @@ function Shared.UpdateTowers(player: Player, towerCount: number)
 		return
 	end
 
-	leaderstats[Configuration.TOWER_STAT_NAME].Value = data.towers
+	leaderstats[Configuration.TOWER_STAT_NAME].Value = towerCount
 end
 
 return Shared
