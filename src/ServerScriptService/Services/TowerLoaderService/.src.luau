@@ -182,7 +182,9 @@ function Local.InitPortal(portalPart: BasePart)
 				Local.OnTouch(otherPart, { TowerName = TowerRushValue.Value, portal = { normal = true } })
 			end)
 		else
-			Util.Warn(`Could not setup teleporter "{portalPart:GetFullName()}" because it does not reference a BasePart.`)
+			Util.Warn(
+				`Could not setup teleporter "{portalPart:GetFullName()}" because it does not reference a BasePart.`
+			)
 		end
 	else
 		Util.Warn(`Part "{portalPart.Name}" was found in the portal folder but it isn't a portal. `)
@@ -243,6 +245,28 @@ function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer
 
 	if not tower then
 		Util.Warn(`Unknown tower {towerName}!`)
+	end
+end
+
+function Local.PlayerLoadTowerRush(playerName: string, towerRushName: string)
+	local player = Players[playerName]
+	local towerRush: TowerRush = TowerRushes[towerRushName]
+
+	if player and towerRush then
+		if player.IsLoadingTower then
+			return
+		end
+
+		player.CurrentTowerRush = towerRushName
+		player.CurrentTowerRushIndex = 1
+		player.BoostItemUsed = false
+		player.BoostItemNames = {}
+
+		local firstTower = towerRush.Towers[1]
+		local towerCount = #towerRush.Towers
+
+		Local.PlayerLoadTower(playerName, firstTower, true)
+		RemoteEvents.UpdateTowerRush:FireClient(player.Player, 1, towerCount)
 	end
 end
 
