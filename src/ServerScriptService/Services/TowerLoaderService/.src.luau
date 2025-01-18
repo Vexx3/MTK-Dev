@@ -22,6 +22,12 @@ type PlayerInfo = Types.PlayerInfo
 type TowerInfo = Types.TowerInfo
 type TowerRush = Types.TowerRush
 type Difficulty = Types.DifficultyInfo
+type TouchOptions = {
+	TowerName: string?,
+	EndingID: string?,
+	isMarker: boolean?,
+	portal: { normal: boolean?, towerRush: { towerRushName: string }?, lobbyTeleporter: { targetPart: BasePart }? }?,
+}
 
 local TowersFolder = workspace.Towers
 local PortalsFolder = workspace.Portals
@@ -156,9 +162,7 @@ function Local.InitWinpad(towerName: string, winpad: BasePart)
 		WinroomMarker = (Util.GetString(winpad, "WinroomMarker") or Util.GetString(winpad, "Winroom")),
 	}
 
-	winpad.Touched:Connect(function(Hit)
-		Local.OnTouch(Hit, { TowerName = towerName, EndingID = endingId })
-	end)
+	Local.SetupTouchHandler(winpad, { TowerName = towerName, EndingID = endingId })
 
 	table.insert(Winpads, winpad)
 end
@@ -170,30 +174,22 @@ function Local.InitPortal(portalPart: BasePart)
 	local lobbyTeleporter = portalPart:FindFirstChild("LobbyTeleporter")
 
 	if towerValue and towerValue:IsA("StringValue") then
-		portalPart.Touched:Connect(function(otherPart)
-			Local.OnTouch(otherPart, { TowerName = towerValue.Value, portal = { normal = true } })
-		end)
+		Local.SetupTouchHandler(portalPart, { TowerName = towerValue.Value, portal = { normal = true } })
 	elseif towerRushValue and towerRushValue:IsA("StringValue") then
-		portalPart.Touched:Connect(function(otherPart)
-			Local.OnTouch(
-				otherPart,
-				{ TowerName = towerRushValue.Value, portal = { towerRush = { towerRushName = towerRushValue } } }
-			)
-		end)
+		Local.SetupTouchHandler(
+			portalPart,
+			{ TowerName = towerRushValue.Value, portal = { towerRush = { towerRushName = towerRushValue } } }
+		)
 	elseif legacyTowerRush and legacyTowerRush:IsA("ModuleScript") then
 		local towerRushName = Local.ConvertLegacyTowerRush(legacyTowerRush)
-		
-		portalPart.Touched:Connect(function(otherPart)
-			Local.OnTouch(otherPart, { portal = { towerRush = { towerRushName = towerRushName } } })
-		end)
+
+		Local.SetupTouchHandler(portalPart, { portal = { towerRush = { towerRushName = towerRushName } } })
 	elseif lobbyTeleporter and lobbyTeleporter:IsA("StringValue") then
 		local targetPartName = lobbyTeleporter.Value
 		local targetPart = Markers:FindFirstChild(targetPartName, true)
 
 		if targetPart and targetPart:IsA("BasePart") then
-			portalPart.Touched:Connect(function(otherPart)
-				Local.OnTouch(otherPart, { TowerName = towerRushValue.Value, portal = { normal = true } })
-			end)
+			Local.SetupTouchHandler(portalPart, { TowerName = towerRushValue.Value, portal = { normal = true } })
 		else
 			Util.Warn(
 				`Could not setup teleporter "{portalPart:GetFullName()}" because it does not reference a BasePart.`
@@ -425,15 +421,7 @@ function Local.ConvertLegacyTowerRush(module: ModuleScript)
 	return towerRushName
 end
 
-function Local.OnTouch(
-	otherPart: BasePart,
-	options: {
-		TowerName: string?,
-		EndingID: string?,
-		isMarker: boolean?,
-		portal: { normal: boolean?, towerRush: { towerRushName: string }?, lobbyTeleporter: { targetPart: BasePart }? }?,
-	}
-)
+function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
 	local isPlayer, playerName = Util.IsPlayerPart(otherPart)
 	if not isPlayer then
 		return
@@ -476,6 +464,12 @@ function Local.OnTouch(
 	then
 		Local.PlayerTouchedWinpad(playerName, options.TowerName, options.EndingID)
 	end
+end
+
+function Local.SetupTouchHandler(part: BasePart, touchOptions: TouchOptions)
+	part.Touched:Connect(function(otherPart)
+		Local.OnTouch(otherPart, touchOptions)
+	end)
 end
 
 return Shared
