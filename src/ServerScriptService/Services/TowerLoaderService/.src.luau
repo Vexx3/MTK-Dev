@@ -356,7 +356,7 @@ function Local.ConvertLegacyTowerRush(module: ModuleScript)
 
 	LEGACY_TOWER_RUSHES += 1
 
-	local towerRushName = Unnamed({ LEGACY_TOWER_RUSHES })
+	local towerRushName = `Unnamed {LEGACY_TOWER_RUSHES}`
 	TowerRushes[towerRushName] = towerRush
 
 	return towerRushName
@@ -364,7 +364,12 @@ end
 
 function Local.OnTouch(
 	otherPart: BasePart,
-	options: { TowerName: string?, EndingID: string?, isMarker: boolean?, portal: { normal: boolean, lobbyTeleporter: boolean? }}
+	options: {
+		TowerName: string?,
+		EndingID: string?,
+		isMarker: boolean?,
+		portal: { normal: boolean?, lobbyTeleporter: { targetPart: BasePart }? }?,
+	}
 )
 	local isPlayer, playerName = Util.IsPlayerPart(otherPart)
 	if not isPlayer then
@@ -382,9 +387,22 @@ function Local.OnTouch(
 
 		player.Player.Team = Teams.Start
 		Util.TeleportPlayerToPart(player.Player, spawnLocation)
-	elseif options.isPortal and options.TowerName then
-		Local.PlayerLoadTower(playerName, options.TowerName, true)
-	elseif
+
+		return
+	end
+
+	if options.portal then
+		if options.portal.normal and options.TowerName then
+			Local.PlayerLoadTower(playerName, options.TowerName, true)
+		else
+			player.TouchEventBusy = true
+			Util.TeleportPlayerToPart(player.Player, options.portal.lobbyTeleporter.targetPart)
+		end
+
+		return
+	end
+
+	if
 		options.TowerName
 		and options.EndingID
 		and not player.TouchEventBusy
