@@ -55,16 +55,14 @@ function Shared.OnStart()
 	-- later
 end
 
-function Local.InitTower(TowerFolder: Folder): TowerInfo
-	local acronym = TowerFolder.Name
-	local spawnLocation = TowerFolder:FindFirstChild("SpawnLocation")
-	if not spawnLocation and spawnLocation:IsA("BasePart") then
-		error(`{acronym} does not have a SpawnLocation!`)
-	end
+function Local.InitTower(towerFolder: Folder): TowerInfo
+	local acronym = towerFolder.Name
+	local spawnLocation = towerFolder:FindFirstChild("SpawnLocation")
+	assert(spawnLocation and spawnLocation:IsA("BasePart"), `{acronym} does not have a valid SpawnLocation!`)
 
-	local clientObjects = TowerFolder:FindFirstChild("ClientSidedObjects")
+	local clientObjects = towerFolder:FindFirstChild("ClientSidedObjects")
 		or ClientObjectsFolder:FindFirstChild(acronym)
-	local checkpointsFolder = TowerFolder:FindFirstChild("Checkpoints")
+	local checkpointsFolder = towerFolder:FindFirstChild("Checkpoints")
 		or TowerCheckpointsFolder:FindFirstChild(acronym)
 	if checkpointsFolder and checkpointsFolder.Parent ~= TowerCheckpointsFolder then
 		checkpointsFolder.Name = acronym
@@ -80,7 +78,7 @@ function Local.InitTower(TowerFolder: Folder): TowerInfo
 	if checkpointsFolder then
 		for i: number, _ in checkpointsFolder:GetChildren() do
 			local checkpointName = tostring(i)
-			local checkpoint = checkpointsFolder:FindFirstChild(checkpointName)
+			local checkpoint: Instance = checkpointsFolder:FindFirstChild(checkpointName)
 			if checkpoint then
 				if checkpoint:IsA("BasePart") then
 					table.insert(checkpointsList, checkpoint)
@@ -99,14 +97,14 @@ function Local.InitTower(TowerFolder: Folder): TowerInfo
 	end
 
 	local tower: TowerInfo = {
-		Name = Util.GetString(TowerFolder, "ProperName") or acronym,
-		Difficulty = Util.GetString(TowerFolder, "Difficulty") or "default",
-		BadgeID = Util.GetInt(TowerFolder, "BadgeID") or 0,
-		Folder = TowerFolder,
+		Name = Util.GetString(towerFolder, "ProperName") or acronym,
+		Difficulty = Util.GetString(towerFolder, "Difficulty") or "default",
+		BadgeID = Util.GetInt(towerFolder, "BadgeID") or 0,
+		Folder = towerFolder,
 		SpawnLocation = spawnLocation,
 		ClientObjects = clientObjects,
 		Endings = {},
-		MinimumTime = Util.GetNumber(TowerFolder, "MinimumTime") or 0,
+		MinimumTime = Util.GetNumber(towerFolder, "MinimumTime") or 0,
 		Checkpoints = checkpointsList,
 		CheckpointCount = checkpointCount,
 	}
@@ -131,63 +129,53 @@ function Local.InitTower(TowerFolder: Folder): TowerInfo
 	return tower
 end
 
-function Local.InitWinpad(TowerName: string, Winpad: BasePart)
+function Local.InitWinpad(towerName: string, winpad: BasePart)
 	local Particles = WinpadParticles:Clone()
-	Particles.Parent = Winpad
+	Particles.Parent = winpad
 
-	local EndingID = Util.GetString(Winpad, "EndingID") or ""
-	if EndingID == "" then
-		Winpad:SetAttribute("EndingID", TowerName)
-		EndingID = TowerName
+	local endingId = Util.GetString(winpad, "EndingID") or towerName
+	winpad:SetAttribute("EndingID", endingId)
+
+	if not Util.GetString(winpad, "ParentTower") then
+		assert(towerName ~= "", `Could not setup winpad {winpad:GetFullName()} because its parent tower is undefined.`)
+		winpad:SetAttribute("ParentTower", towerName)
 	end
 
-	local ParentTower = Util.GetString(Winpad, "ParentTower") or ""
-	if ParentTower == "" then
-		if TowerName == "" then
-			error(`Could not setup winpad {Winpad:GetFullName()} because it's parent tower is undefined.`)
-		end
-		Winpad:SetAttribute("ParentTower", TowerName)
-	end
+	local Tower: TowerInfo = Towers[towerName]
+	assert(Tower, `Could not setup winpad {winpad:GetFullName()} because its parent tower does not exist.`)
 
-	local Tower: TowerInfo = Towers[TowerName]
-	if Tower then
-		local Ending: EndingInfo = {
-			Name = Util.GetString(Winpad, "EndingName") or Tower.Name,
-			Difficulty = Util.GetString(Winpad, "Difficulty") or Tower.Difficulty,
-			BadgeID = Util.GetInt(Winpad, "BadgeID") or 0,
-			PreventTowerBadge = Util.GetBoolean(Winpad, "PreventTowerBadge") or false,
-			ParentTower = TowerName,
-			WinroomMarker = (Util.GetString(Winpad, "WinroomMarker") or Util.GetString(Winpad, "Winroom")),
-		}
+	Tower.Endings[endingId] = {
+		Name = Util.GetString(winpad, "EndingName") or Tower.Name,
+		Difficulty = Util.GetString(winpad, "Difficulty") or Tower.Difficulty,
+		BadgeID = Util.GetInt(winpad, "BadgeID") or 0,
+		PreventTowerBadge = Util.GetBoolean(winpad, "PreventTowerBadge") or false,
+		ParentTower = towerName,
+		WinroomMarker = (Util.GetString(winpad, "WinroomMarker") or Util.GetString(winpad, "Winroom")),
+	}
 
-		Tower.Endings[EndingID] = Ending
+	winpad.Touched:Connect(function(Hit)
+		Local.OnTouch(Hit, { TowerName = towerName, EndingID = endingId })
+	end)
 
-		Winpad.Touched:Connect(function(Hit)
-			Local.OnTouch(Hit, TowerName, EndingID)
-		end)
-	else
-		error(`Could not setup winpad {Winpad:GetFullName()} because it's parent tower does not exist.`)
-	end
-
-	table.insert(Winpads, Winpad)
+	table.insert(Winpads, winpad)
 end
 
-function Local.PlayerLoadTower(PlayerName: string, TowerName: string, ResetTimer: boolean)
-	local player = Players[PlayerName]
-	local tower = Towers[TowerName]
+function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer: boolean)
+	local player = Players[playerName]
+	local tower = Towers[towerName]
 
 	if player and tower then
 		if player.IsLoadingTower then
 			return
 		end
 
-		if ResetTimer then
+		if resetTimer then
 			player.TowerTimer = 0
 			player.BoostItemUsed = false
 			player.BoostItemNames = {}
 		end
 
-		player.CurrentTower = TowerName
+		player.CurrentTower = towerName
 		player.CurrentTowerCheckpoint = 1
 		player.IsLoadingTower = true
 		player.player:LoadCharacter()
@@ -217,18 +205,18 @@ function Local.PlayerLoadTower(PlayerName: string, TowerName: string, ResetTimer
 			COFolder.Name = "ClientSidedObjects"
 			COFolder.Parent = player.Player
 		end
-		RemoteEvents.LoadTower:FireClient(player.Player, TowerName, purist, ResetTimer)
+		RemoteEvents.LoadTower:FireClient(player.Player, towerName, purist, resetTimer)
 		player.IsLoadingTower = false
 	end
 
 	if not tower then
-		Util.Warn(`Unknown tower {TowerName}!`)
+		Util.Warn(`Unknown tower {towerName}!`)
 	end
 end
 
-function Local.PlayerTouchedWinpad(PlayerName: string, TowerName: string, EndingID: string)
-	local player: PlayerInfo = Players[PlayerName]
-	local tower: TowerInfo = Towers[TowerName]
+function Local.PlayerTouchedWinpad(playerName: string, towerName: string, endingId: string)
+	local player: PlayerInfo = Players[playerName]
+	local tower: TowerInfo = Towers[towerName]
 
 	if player and tower then
 		if player.TouchEventBusy then
@@ -236,7 +224,7 @@ function Local.PlayerTouchedWinpad(PlayerName: string, TowerName: string, Ending
 		end
 		player.TouchEventBusy = true
 
-		local Ending: EndingInfo = tower.Endings[EndingID]
+		local Ending: EndingInfo = tower.Endings[endingId]
 		if Ending then
 			if player.CurrentTower == "" then
 				player.TouchEventBusy = false
@@ -260,7 +248,7 @@ function Local.PlayerTouchedWinpad(PlayerName: string, TowerName: string, Ending
 				local EndingName = tower.Name
 				local EndingWinroom = ""
 
-				if EndingID ~= TowerName then
+				if endingId ~= towerName then
 					EndingDifficultyName = Ending.Difficulty
 					EndingName = Ending.Name
 					EndingWinroom = Ending.WinroomMarker
@@ -278,10 +266,10 @@ function Local.PlayerTouchedWinpad(PlayerName: string, TowerName: string, Ending
 
 				Local.TeleportToWinroom(player, EndingWinroom)
 			else
-				Local.AdvanceTowerRush(PlayerName)
+				Local.AdvanceTowerRush(playerName)
 			end
 		else
-			error(`{PlayerName} touched a winpad in {TowerName}, but the ending referenced does not exist.`)
+			error(`{playerName} touched a winpad in {towerName}, but the ending referenced does not exist.`)
 		end
 
 		task.wait(0.01)
@@ -289,8 +277,8 @@ function Local.PlayerTouchedWinpad(PlayerName: string, TowerName: string, Ending
 	end
 end
 
-function Local.AdvanceTowerRush(PlayerName: string)
-	local player = Players[PlayerName]
+function Local.AdvanceTowerRush(playerName: string)
+	local player = Players[playerName]
 	if player then
 		local towerRush: TowerRush = TowerRushes[player.CurrentTowerRush]
 		if towerRush then
@@ -307,54 +295,68 @@ function Local.AdvanceTowerRush(PlayerName: string)
 				player.CurrentTowerRushIndex += 1
 
 				local towerName = towerRush.Towers[player.CurrentTowerRushIndex]
-				Local.PlayerLoadTower(PlayerName, towerName, false)
+				Local.PlayerLoadTower(playerName, towerName, false)
 				RemoteEvents.UpdateTowerRush:FireClient(player.Player, player.CurrentTowerRushIndex, TowerCount)
 			end
 		end
 	end
 end
 
-function Local.ResetPlayerInfo(Player: PlayerInfo)
-	Player.TowerTimer = 0
-	Player.CurrentTower = ""
-	Player.CurrentTowerCheckpoint = 0
-	Player.CurrentTowerRush = ""
-	Player.CurrentTowerRushIndex = 0
-	Player.BoostItemNames = {}
-	Player.BoostItemUsed = false
-	Player.DebugItemUsed = false
+function Local.ResetPlayerInfo(player: PlayerInfo)
+	player.TowerTimer = 0
+	player.CurrentTower = ""
+	player.CurrentTowerCheckpoint = 0
+	player.CurrentTowerRush = ""
+	player.CurrentTowerRushIndex = 0
+	player.BoostItemNames = {}
+	player.BoostItemUsed = false
+	player.DebugItemUsed = false
 end
 
-function Local.TeleportToWinroom(Player: PlayerInfo, WinroomMarker: string)
-	Player.TouchEventBusy = true
-	Player.Player.Team = Teams.Winners
+function Local.TeleportToWinroom(player: PlayerInfo, winroomMarker: string)
+	player.TouchEventBusy = true
+	player.Player.Team = Teams.Winners
 
-	RemoteEvents.UnloadTower:FireClient(Player.Player)
-	Local.ResetPlayerInfo(Player)
+	RemoteEvents.UnloadTower:FireClient(player.Player)
+	Local.ResetPlayerInfo(player)
 
 	local winroomPart: Instance
-	if WinroomMarker ~= "" then
-		winroomPart = Markers:FindFirstChild(WinroomMarker, true)
+	if winroomMarker ~= "" then
+		winroomPart = Markers:FindFirstChild(winroomMarker, true)
 	else
 		winroomPart = Markers:FindFirstChild("WinroomSpawn", true)
 	end
 
 	if winroomPart and winroomPart:IsA("BasePart") then
-		Util.TeleportPlayerToPartWithWait(Player.Player, winroomPart)
+		Util.TeleportPlayerToPartWithWait(player.Player, winroomPart)
 	end
 
-	Player.TouchEventBusy = false
+	player.TouchEventBusy = false
 end
 
-function Local.OnTouch(Hit: BasePart, TowerName: string, EndingID: string)
-	local isPlayer, playerName = Util.IsPlayerPart(Hit)
+function Local.OnTouch(otherPart: BasePart, options: { TowerName: string?, EndingID: string?, isMarker: boolean? })
+	local isPlayer, playerName = Util.IsPlayerPart(otherPart)
+	if not isPlayer then
+		return
+	end
+
 	local player: PlayerInfo = Players[playerName]
 
-	if isPlayer and not player.TouchEventBusy then
-		if not Util.IsPlayerAlive(player.Player.Character) then
-			return
-		end
-		Local.PlayerTouchedWinpad(playerName, TowerName, EndingID)
+	if options.isMarker then
+		local spawnLocation: Instance = Markers:FindFirstChild("SpawnLocation")
+		assert(
+			spawnLocation and spawnLocation:IsA("BasePart"),
+			"Could not initialize LobbyTP because a SpawnLocation couldn't be found."
+		)
+		player.Player.Team = Teams.Start
+		Util.TeleportPlayerToPart(player.Player, spawnLocation)
+	elseif
+		options.TowerName
+		and options.EndingID
+		and not player.TouchEventBusy
+		and Util.IsPlayerAlive(player.Player.Character)
+	then
+		Local.PlayerTouchedWinpad(playerName, options.TowerName, options.EndingID)
 	end
 end
 
