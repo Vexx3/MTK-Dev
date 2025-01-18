@@ -162,7 +162,7 @@ function Local.InitWinpad(towerName: string, winpad: BasePart)
 		WinroomMarker = (Util.GetString(winpad, "WinroomMarker") or Util.GetString(winpad, "Winroom")),
 	}
 
-	Local.SetupTouchHandler(winpad, { TowerName = towerName, EndingID = endingId })
+	Local.InitTouchHandler(winpad, { TowerName = towerName, EndingID = endingId })
 
 	table.insert(Winpads, winpad)
 end
@@ -174,22 +174,22 @@ function Local.InitPortal(portalPart: BasePart)
 	local lobbyTeleporter = portalPart:FindFirstChild("LobbyTeleporter")
 
 	if towerValue and towerValue:IsA("StringValue") then
-		Local.SetupTouchHandler(portalPart, { TowerName = towerValue.Value, portal = { normal = true } })
+		Local.InitTouchHandler(portalPart, { TowerName = towerValue.Value, portal = { normal = true } })
 	elseif towerRushValue and towerRushValue:IsA("StringValue") then
-		Local.SetupTouchHandler(
+		Local.InitTouchHandler(
 			portalPart,
 			{ TowerName = towerRushValue.Value, portal = { towerRush = { towerRushName = towerRushValue } } }
 		)
 	elseif legacyTowerRush and legacyTowerRush:IsA("ModuleScript") then
 		local towerRushName = Local.ConvertLegacyTowerRush(legacyTowerRush)
 
-		Local.SetupTouchHandler(portalPart, { portal = { towerRush = { towerRushName = towerRushName } } })
+		Local.InitTouchHandler(portalPart, { portal = { towerRush = { towerRushName = towerRushName } } })
 	elseif lobbyTeleporter and lobbyTeleporter:IsA("StringValue") then
 		local targetPartName = lobbyTeleporter.Value
 		local targetPart = Markers:FindFirstChild(targetPartName, true)
 
 		if targetPart and targetPart:IsA("BasePart") then
-			Local.SetupTouchHandler(portalPart, { TowerName = towerRushValue.Value, portal = { normal = true } })
+			Local.InitTouchHandler(portalPart, { TowerName = towerRushValue.Value, portal = { normal = true } })
 		else
 			Util.Warn(
 				`Could not setup teleporter "{portalPart:GetFullName()}" because it does not reference a BasePart.`
@@ -198,6 +198,12 @@ function Local.InitPortal(portalPart: BasePart)
 	else
 		Util.Warn(`Part "{portalPart.Name}" was found in the portal folder but it isn't a portal. `)
 	end
+end
+
+function Local.InitTouchHandler(part: BasePart, touchOptions: TouchOptions)
+	part.Touched:Connect(function(otherPart)
+		Local.OnTouch(otherPart, touchOptions)
+	end)
 end
 
 function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer: boolean)
@@ -464,12 +470,6 @@ function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
 	then
 		Local.PlayerTouchedWinpad(playerName, options.TowerName, options.EndingID)
 	end
-end
-
-function Local.SetupTouchHandler(part: BasePart, touchOptions: TouchOptions)
-	part.Touched:Connect(function(otherPart)
-		Local.OnTouch(otherPart, touchOptions)
-	end)
 end
 
 return Shared
