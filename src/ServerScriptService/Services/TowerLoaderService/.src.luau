@@ -163,6 +163,32 @@ function Local.InitWinpad(towerName: string, winpad: BasePart)
 	table.insert(Winpads, winpad)
 end
 
+function Local.InitPortal(portalPart: BasePart)
+	local TowerValue = portalPart:FindFirstChild("TowerPortal")
+	local TowerRushValue = portalPart:FindFirstChild("TowerRush")
+	local LegacyTowerRush = portalPart:FindFirstChild("TowerRushPortal")
+	local LobbyTeleporter = portalPart:FindFirstChild("LobbyTeleporter")
+
+	if TowerValue and TowerValue:IsA("StringValue") then
+		portalPart.Touched:Connect(function(otherPart)
+			Local.OnTouch(otherPart, { TowerName = TowerValue.Value, portal = { normal = true } })
+		end)
+	elseif LobbyTeleporter and LobbyTeleporter:IsA("StringValue") then
+		local targetPartName = LobbyTeleporter.Value
+		local targetPart = Markers:FindFirstChild(targetPartName, true)
+
+		if targetPart and targetPart:IsA("BasePart") then
+			portalPart.Touched:Connect(function(otherPart)
+				Local.OnTouch(otherPart, { TowerName = TowerRushValue.Value, portal = { normal = true } })
+			end)
+		else
+			Util.Warn(`Could not setup teleporter "{portalPart:GetFullName()}" because it does not reference a BasePart.`)
+		end
+	else
+		Util.Warn(`Part "{portalPart.Name}" was found in the portal folder but it isn't a portal. `)
+	end
+end
+
 function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer: boolean)
 	local player = Players[playerName]
 	local tower = Towers[towerName]
@@ -368,7 +394,7 @@ function Local.OnTouch(
 		TowerName: string?,
 		EndingID: string?,
 		isMarker: boolean?,
-		portal: { normal: boolean?, lobbyTeleporter: { targetPart: BasePart }? }?,
+		portal: { normal: boolean?, towerRush: boolean?, lobbyTeleporter: { targetPart: BasePart }? }?,
 	}
 )
 	local isPlayer, playerName = Util.IsPlayerPart(otherPart)
@@ -394,9 +420,10 @@ function Local.OnTouch(
 	if options.portal then
 		if options.portal.normal and options.TowerName then
 			Local.PlayerLoadTower(playerName, options.TowerName, true)
-		else
+		elseif options.portal.lobbyTeleporter and options.portal.lobbyTeleporter.targetPart then
 			player.TouchEventBusy = true
 			Util.TeleportPlayerToPart(player.Player, options.portal.lobbyTeleporter.targetPart)
+			player.TouchEventBusy = false
 		end
 
 		return
