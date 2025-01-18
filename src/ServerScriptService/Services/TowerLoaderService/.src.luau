@@ -164,22 +164,35 @@ function Local.InitWinpad(towerName: string, winpad: BasePart)
 end
 
 function Local.InitPortal(portalPart: BasePart)
-	local TowerValue = portalPart:FindFirstChild("TowerPortal")
-	local TowerRushValue = portalPart:FindFirstChild("TowerRush")
-	local LegacyTowerRush = portalPart:FindFirstChild("TowerRushPortal")
-	local LobbyTeleporter = portalPart:FindFirstChild("LobbyTeleporter")
+	local towerValue = portalPart:FindFirstChild("TowerPortal")
+	local towerRushValue = portalPart:FindFirstChild("TowerRush")
+	local legacyTowerRush = portalPart:FindFirstChild("TowerRushPortal")
+	local lobbyTeleporter = portalPart:FindFirstChild("LobbyTeleporter")
 
-	if TowerValue and TowerValue:IsA("StringValue") then
+	if towerValue and towerValue:IsA("StringValue") then
 		portalPart.Touched:Connect(function(otherPart)
-			Local.OnTouch(otherPart, { TowerName = TowerValue.Value, portal = { normal = true } })
+			Local.OnTouch(otherPart, { TowerName = towerValue.Value, portal = { normal = true } })
 		end)
-	elseif LobbyTeleporter and LobbyTeleporter:IsA("StringValue") then
-		local targetPartName = LobbyTeleporter.Value
+	elseif towerRushValue and towerRushValue:IsA("StringValue") then
+		portalPart.Touched:Connect(function(otherPart)
+			Local.OnTouch(
+				otherPart,
+				{ TowerName = towerRushValue.Value, portal = { towerRush = { towerRushName = towerRushValue } } }
+			)
+		end)
+	elseif legacyTowerRush and legacyTowerRush:IsA("ModuleScript") then
+		local towerRushName = Local.ConvertLegacyTowerRush(legacyTowerRush)
+		
+		portalPart.Touched:Connect(function(otherPart)
+			Local.OnTouch(otherPart, { portal = { towerRush = { towerRushName = towerRushName } } })
+		end)
+	elseif lobbyTeleporter and lobbyTeleporter:IsA("StringValue") then
+		local targetPartName = lobbyTeleporter.Value
 		local targetPart = Markers:FindFirstChild(targetPartName, true)
 
 		if targetPart and targetPart:IsA("BasePart") then
 			portalPart.Touched:Connect(function(otherPart)
-				Local.OnTouch(otherPart, { TowerName = TowerRushValue.Value, portal = { normal = true } })
+				Local.OnTouch(otherPart, { TowerName = towerRushValue.Value, portal = { normal = true } })
 			end)
 		else
 			Util.Warn(
@@ -418,7 +431,7 @@ function Local.OnTouch(
 		TowerName: string?,
 		EndingID: string?,
 		isMarker: boolean?,
-		portal: { normal: boolean?, towerRush: boolean?, lobbyTeleporter: { targetPart: BasePart }? }?,
+		portal: { normal: boolean?, towerRush: { towerRushName: string }?, lobbyTeleporter: { targetPart: BasePart }? }?,
 	}
 )
 	local isPlayer, playerName = Util.IsPlayerPart(otherPart)
@@ -444,6 +457,8 @@ function Local.OnTouch(
 	if options.portal then
 		if options.portal.normal and options.TowerName then
 			Local.PlayerLoadTower(playerName, options.TowerName, true)
+		elseif options.portal.towerRush and options.portal.towerRush.towerRushName then
+			Local.PlayerLoadTowerRush(playerName, options.portal.towerRush.towerRushName)
 		elseif options.portal.lobbyTeleporter and options.portal.lobbyTeleporter.targetPart then
 			player.TouchEventBusy = true
 			Util.TeleportPlayerToPart(player.Player, options.portal.lobbyTeleporter.targetPart)
