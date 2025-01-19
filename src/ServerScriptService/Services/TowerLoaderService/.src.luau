@@ -200,6 +200,12 @@ function Local.InitPortal(portalPart: BasePart)
 	end
 end
 
+function Local.InitMarker(marker: BasePart)
+	if marker.Name == "LobbyTP" then
+		Local.InitTouchHandler(marker, { isMarker = true })
+	end
+end
+
 function Local.InitTouchHandler(part: BasePart, touchOptions: TouchOptions)
 	part.Touched:Connect(function(otherPart)
 		Local.OnTouch(otherPart, touchOptions)
@@ -372,6 +378,23 @@ function Local.AdvanceTowerRush(playerName: string)
 	end
 end
 
+function Local.EverpresentCOsRequested(playerInstance: Player): (boolean, Folder?)
+	local player = Players[playerInstance.Name]
+	if player then
+		if player.HasEverpresentCOs then
+			return false, nil
+		end
+
+		local playerECOs: Folder = EverpresentCOs:Clone()
+		playerECOs.Parent = playerInstance
+
+		player.HasEverpresentCOs = true
+		return true, playerECOs
+	end
+
+	return false, nil
+end
+
 function Local.ResetPlayerInfo(player: PlayerInfo)
 	player.TowerTimer = 0
 	player.CurrentTower = ""
@@ -433,7 +456,7 @@ function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
 		return
 	end
 
-	local player: PlayerInfo = Players[playerName]
+	local player = Players[playerName]
 
 	if options.isMarker then
 		local spawnLocation: Instance = Markers:FindFirstChild("SpawnLocation")
