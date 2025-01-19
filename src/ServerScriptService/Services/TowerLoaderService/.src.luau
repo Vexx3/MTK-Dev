@@ -215,184 +215,196 @@ end
 function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer: boolean)
 	local player = Players[playerName]
 	local tower = Towers[towerName]
-
-	if player and tower then
-		if player.IsLoadingTower then
-			return
-		end
-
-		if resetTimer then
-			player.TowerTimer = 0
-			player.BoostItemUsed = false
-			player.BoostItemNames = {}
-		end
-
-		player.CurrentTower = towerName
-		player.CurrentTowerCheckpoint = 1
-		player.IsLoadingTower = true
-		player.player:LoadCharacter()
-
-		repeat
-			task.wait(0.05)
-		until player.Player.Character
-
-		local Character = player.Player.Character
-		if Character then
-			local ForceField = Character:FindFirstChildOfClass("ForceField")
-			if ForceField then
-				ForceField:Destroy()
-			end
-
-			Util.TeleportPlayerToPartWithWait(player.Player, tower.SpawnLocation)
-		end
-
-		local oldCOFolder = player.Player:FindFirstChild("ClientSidedObjects")
-		if oldCOFolder then
-			oldCOFolder:Destroy()
-		end
-
-		local purist = true
-		if tower.ClientObjects then
-			purist = false
-
-			local COFolder = tower.ClientObjects:Clone()
-			COFolder.Name = "ClientSidedObjects"
-			COFolder.Parent = player.Player
-		end
-
-		RemoteEvents.LoadTower:FireClient(player.Player, towerName, purist, resetTimer)
-		player.IsLoadingTower = false
+	if not player then
+		return
 	end
 
 	if not tower then
 		Util.Warn(`Unknown tower {towerName}!`)
+		return
 	end
+
+	if player.IsLoadingTower then
+		return
+	end
+
+	if resetTimer then
+		player.TowerTimer = 0
+		player.BoostItemUsed = false
+		player.BoostItemNames = {}
+	end
+
+	player.CurrentTower = towerName
+	player.CurrentTowerCheckpoint = 1
+	player.IsLoadingTower = true
+	player.player:LoadCharacter()
+
+	repeat
+		task.wait(0.05)
+	until player.Player.Character
+
+	local Character = player.Player.Character
+	if Character then
+		local ForceField = Character:FindFirstChildOfClass("ForceField")
+		if ForceField then
+			ForceField:Destroy()
+		end
+
+		Util.TeleportPlayerToPartWithWait(player.Player, tower.SpawnLocation)
+	end
+
+	local oldCOFolder = player.Player:FindFirstChild("ClientSidedObjects")
+	if oldCOFolder then
+		oldCOFolder:Destroy()
+	end
+
+	local purist = true
+	if tower.ClientObjects then
+		purist = false
+
+		local COFolder = tower.ClientObjects:Clone()
+		COFolder.Name = "ClientSidedObjects"
+		COFolder.Parent = player.Player
+	end
+
+	RemoteEvents.LoadTower:FireClient(player.Player, towerName, purist, resetTimer)
+	player.IsLoadingTower = false
 end
 
 function Local.PlayerLoadTowerRush(playerName: string, towerRushName: string)
 	local player = Players[playerName]
 	local towerRush: TowerRush = TowerRushes[towerRushName]
-
-	if player and towerRush then
-		if player.IsLoadingTower then
-			return
-		end
-
-		player.CurrentTowerRush = towerRushName
-		player.CurrentTowerRushIndex = 1
-		player.BoostItemUsed = false
-		player.BoostItemNames = {}
-
-		local firstTower = towerRush.Towers[1]
-		local towerCount = #towerRush.Towers
-
-		Local.PlayerLoadTower(playerName, firstTower, true)
-		RemoteEvents.UpdateTowerRush:FireClient(player.Player, 1, towerCount)
+	if not (player and towerRush) or player.IsLoadingTower then
+		return
 	end
+
+	player.CurrentTowerRush = towerRushName
+	player.CurrentTowerRushIndex = 1
+	player.BoostItemUsed = false
+	player.BoostItemNames = {}
+
+	local firstTower = towerRush.Towers[1]
+	local towerCount = #towerRush.Towers
+
+	Local.PlayerLoadTower(playerName, firstTower, true)
+	RemoteEvents.UpdateTowerRush:FireClient(player.Player, 1, towerCount)
 end
 
 function Local.PlayerTouchedWinpad(playerName: string, towerName: string, endingId: string)
 	local player: PlayerInfo = Players[playerName]
 	local tower: TowerInfo = Towers[towerName]
-
-	if player and tower then
-		if player.TouchEventBusy then
-			return
-		end
-
-		player.TouchEventBusy = true
-
-		local Ending: EndingInfo = tower.Endings[endingId]
-		assert(Ending, `{playerName} touched a winpad in {towerName}, but the ending referenced does not exist.`)
-
-		if player.CurrentTower == "" then
-			player.TouchEventBusy = false
-			return
-		end
-
-		if Ending.ParentTower ~= player.CurrentTower then
-			Announcements.AntiCheatKick(player.Player, "Touched the winpad of a tower you're not in.")
-			return
-		end
-
-		if not player.DebugItemUsed and tower.MinimumTime > 0 and player.TowerTimer < tower.MinimumTime then
-			Announcements.AntiCheatKick(player.Player, "Completed the tower too early")
-			return
-		end
-
-		if player.CurrentTowerRush == "" then
-			local EndingDifficultyName = tower.Difficulty
-			local EndingName = tower.Name
-			local EndingWinroom = ""
-
-			if endingId ~= towerName then
-				EndingDifficultyName = Ending.Difficulty
-				EndingName = Ending.Name
-				EndingWinroom = Ending.WinroomMarker
-			end
-
-			Announcements.WinAnnouncement(player, EndingName, EndingDifficultyName)
-
-			if tower.BadgeID ~= 0 and not Ending.PreventTowerBadge then
-				BadgeService:AwardBadge(player.Player.UserId, tower.BadgeID)
-			end
-
-			if Ending.BadgeID ~= 0 then
-				BadgeService:AwardBadge(player.Player.UserId, Ending.BadgeID)
-			end
-
-			Local.TeleportToWinroom(player, EndingWinroom)
-		else
-			Local.AdvanceTowerRush(playerName)
-		end
-
-		task.wait(0.01)
-		player.TouchEventBusy = false
+	if not (player and tower) or player.TouchEventBusy then
+		return
 	end
+
+	player.TouchEventBusy = true
+
+	local Ending: EndingInfo = tower.Endings[endingId]
+	assert(Ending, `{playerName} touched a winpad in {towerName}, but the ending referenced does not exist.`)
+
+	if player.CurrentTower == "" then
+		player.TouchEventBusy = false
+		return
+	end
+
+	if Ending.ParentTower ~= player.CurrentTower then
+		Announcements.AntiCheatKick(player.Player, "Touched the winpad of a tower you're not in.")
+		return
+	end
+
+	if not player.DebugItemUsed and tower.MinimumTime > 0 and player.TowerTimer < tower.MinimumTime then
+		Announcements.AntiCheatKick(player.Player, "Completed the tower too early")
+		return
+	end
+
+	if player.CurrentTowerRush == "" then
+		local EndingDifficultyName = tower.Difficulty
+		local EndingName = tower.Name
+		local EndingWinroom = ""
+
+		if endingId ~= towerName then
+			EndingDifficultyName = Ending.Difficulty
+			EndingName = Ending.Name
+			EndingWinroom = Ending.WinroomMarker
+		end
+
+		Announcements.WinAnnouncement(player, EndingName, EndingDifficultyName)
+
+		if tower.BadgeID ~= 0 and not Ending.PreventTowerBadge then
+			BadgeService:AwardBadge(player.Player.UserId, tower.BadgeID)
+		end
+
+		if Ending.BadgeID ~= 0 then
+			BadgeService:AwardBadge(player.Player.UserId, Ending.BadgeID)
+		end
+
+		Local.TeleportToWinroom(player, EndingWinroom)
+	else
+		Local.AdvanceTowerRush(playerName)
+	end
+
+	task.wait(0.01)
+	player.TouchEventBusy = false
 end
 
 function Local.AdvanceTowerRush(playerName: string)
 	local player = Players[playerName]
-	if player then
-		local towerRush: TowerRush = TowerRushes[player.CurrentTowerRush]
-		if towerRush then
-			local towerCount = #towerRush.Towers
+	if not player then
+		return
+	end
 
-			if player.CurrentTowerRushIndex == towerCount then
-				Announcements.WinAnnouncement(player, towerRush.Title, towerRush.Difficulty)
+	local towerRush: TowerRush = TowerRushes[player.CurrentTowerRush]
+	if not towerRush then
+		return
+	end
 
-				if towerRush.BadgeID ~= 0 then
-					BadgeService:AwardBadge(player.Player.UserId, towerRush.BadgeID)
-				end
+	local towerCount = #towerRush.Towers
 
-				Local.TeleportToWinroom(player, towerRush.WinroomMarker)
-			else
-				player.CurrentTowerRushIndex += 1
+	if player.CurrentTowerRushIndex == towerCount then
+		Announcements.WinAnnouncement(player, towerRush.Title, towerRush.Difficulty)
 
-				local towerName = towerRush.Towers[player.CurrentTowerRushIndex]
-
-				Local.PlayerLoadTower(playerName, towerName, false)
-				RemoteEvents.UpdateTowerRush:FireClient(player.Player, player.CurrentTowerRushIndex, towerCount)
-			end
+		if towerRush.BadgeID ~= 0 then
+			BadgeService:AwardBadge(player.Player.UserId, towerRush.BadgeID)
 		end
+
+		Local.TeleportToWinroom(player, towerRush.WinroomMarker)
+	else
+		player.CurrentTowerRushIndex += 1
+
+		local towerName = towerRush.Towers[player.CurrentTowerRushIndex]
+
+		Local.PlayerLoadTower(playerName, towerName, false)
+		RemoteEvents.UpdateTowerRush:FireClient(player.Player, player.CurrentTowerRushIndex, towerCount)
 	end
 end
 
 function Local.EverpresentCOsRequested(playerInstance: Player): (boolean, Folder?)
 	local player = Players[playerInstance.Name]
-	if player then
-		if player.HasEverpresentCOs then
-			return false, nil
-		end
-
-		local playerECOs: Folder = EverpresentCOs:Clone()
-		playerECOs.Parent = playerInstance
-
-		player.HasEverpresentCOs = true
-		return true, playerECOs
+	if not player or player.HasEverpresentCOs then
+		return false, nil
 	end
 
-	return false, nil
+	local playerECOs: Folder = EverpresentCOs:Clone()
+	playerECOs.Parent = playerInstance
+
+	player.HasEverpresentCOs = true
+	return true, playerECOs
+end
+
+function Local.PlayerRequestedRestart(playerInstance: Player)
+	local player = Players[playerInstance.Name]
+
+	if player.GameTimer - player.LastRestart < Configuration.RESTART_COOLDOWN or player.CurrentTower == "" then
+		return
+	end
+
+	player.LastRestart = player.GameTimer
+
+	if player.CurrentTowerRush == "" then
+		Local.PlayerLoadTower(playerInstance.Name, player.CurrentTower, true)
+	else
+		Local.PlayerLoadTowerRush(playerInstance.Name, player.CurrentTowerRush)
+	end
 end
 
 function Local.ResetPlayerInfo(player: PlayerInfo)
@@ -413,12 +425,9 @@ function Local.TeleportToWinroom(player: PlayerInfo, winroomMarker: string)
 	RemoteEvents.UnloadTower:FireClient(player.Player)
 	Local.ResetPlayerInfo(player)
 
-	local winroomPart: Instance
-	if winroomMarker ~= "" then
-		winroomPart = Markers:FindFirstChild(winroomMarker, true)
-	else
-		winroomPart = Markers:FindFirstChild("WinroomSpawn", true)
-	end
+	local winroomPart = if winroomMarker ~= ""
+		then Markers:FindFirstChild(winroomMarker, true)
+		else Markers:FindFirstChild("WinroomSpawn", true)
 
 	if winroomPart and winroomPart:IsA("BasePart") then
 		Util.TeleportPlayerToPartWithWait(player.Player, winroomPart)

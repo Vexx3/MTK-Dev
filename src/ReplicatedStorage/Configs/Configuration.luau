@@ -4,7 +4,11 @@ local config = {
 	},
 	DATA_STORE_KEY = "Production",
 	TOWER_STAT_NAME = "Towers",
+	
+	RESTART_COOLDOWN = 3,
+
 	USE_DISPLAY_NAME = false,
+
 	CHECKPOINTS_WORKSPACE_WARNING = true,
 	CHECKPOINTS_MISSING_WARNING = true,
 	NO_MINIMUM_TIME_WARNING = true,
