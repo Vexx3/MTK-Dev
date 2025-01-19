@@ -212,6 +212,95 @@ function Local.InitTouchHandler(part: BasePart, touchOptions: TouchOptions)
 	end)
 end
 
+function Local.ConvertLegacyTowerRush(module: ModuleScript)
+	local towerRushData = require(module)
+	local towerRush: TowerRush = {
+		BadgeID = towerRushData.BadgeID,
+		Title = towerRushData.ProperName,
+		Difficulty = "unknown",
+		WinroomMarker = "",
+		Towers = {},
+	}
+
+	for i = 1, #towerRushData, 1 do
+		local towerName = towerRushData[i]
+		table.insert(towerRush.Towers, towerName)
+	end
+
+	LEGACY_TOWER_RUSHES += 1
+
+	local towerRushName = `Unnamed {LEGACY_TOWER_RUSHES}`
+	TowerRushes[towerRushName] = towerRush
+
+	return towerRushName
+end
+
+function Local.CharacterAdded(character: Model)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.RigType == Enum.HumanoidRigType.R15 and Configuration.R15_WARNING then
+		Util.Warn(
+			"Character spawned with R15 rig type, most obbying techniques are impossible. Ensure that the rig type is R6 in Game Settings."
+		)
+	end
+
+	local player = Players[character.Name]
+	if not player then
+		return
+	end
+
+	Local.OnChildAdded(character, player)
+
+	if player.IsLoadingTower then
+		return
+	end
+
+	RemoteEvents.UnloadTower:FireClient(player.Player)
+	Local.ResetPlayerInfo(player)
+end
+
+function Local.PlayerAdded(player: Player)
+	local info: PlayerInfo = {
+		Player = player,
+		GameTimer = 0,
+		LastRestart = 0,
+		CurrentTower = "",
+		CurrentTowerCheckpoint = 0,
+		BoostItemNames = {},
+		BoostItemUsed = false,
+		TowerTimer = 0,
+		CurrentTowerRush = "",
+		CurrentTowerRushIndex = 0,
+		TouchEventBusy = false,
+		IsLoadingTower = false,
+		HasEverpresentCOs = false,
+		DebugItemUsed = false,
+	}
+	Players[player.Name] = info
+
+	if player.Character then
+		Local.CharacterAdded(player.Character)
+	end
+
+	player.Team = Teams.Start
+	player.CharacterAdded:Connect(Local.CharacterAdded)
+end
+
+function Local.PlayerRemoving(player: Player)
+	Players[player.Name] = nil
+end
+
+function Local.Step(time: number, deltaTime: number)
+	for i, player in Players do
+		player.GameTimer += deltaTime
+
+		if player.CurrentTower ~= "" then
+			local oldTower = player.TowerTimer
+			player.TowerTimer += deltaTime
+			-- TODO: continue later.
+		end
+	end
+end
+
 function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer: boolean)
 	local player = Players[playerName]
 	local tower = Towers[towerName]
@@ -407,6 +496,21 @@ function Local.PlayerRequestedRestart(playerInstance: Player)
 	end
 end
 
+function Local.PlayerEquippedTool(player: PlayerInfo, item: Tool)
+	local isDebugItem: boolean = item:GetAttribute("DebugItem") :: boolean
+	local boostName: string = item:GetAttribute("BoostName") :: string
+	local boostUsed = boostName and boostName ~= "" or false
+
+	if isDebugItem or boostUsed then
+		player.DebugItemUsed = true
+	end
+
+	if boostUsed then
+		player.BoostItemUsed = true
+		player.BoostItemNames[item.Name] = boostName or "Boost Item"
+	end
+end
+
 function Local.ResetPlayerInfo(player: PlayerInfo)
 	player.TowerTimer = 0
 	player.CurrentTower = ""
@@ -434,29 +538,6 @@ function Local.TeleportToWinroom(player: PlayerInfo, winroomMarker: string)
 	end
 
 	player.TouchEventBusy = false
-end
-
-function Local.ConvertLegacyTowerRush(module: ModuleScript)
-	local towerRushData = require(module)
-	local towerRush: TowerRush = {
-		BadgeID = towerRushData.BadgeID,
-		Title = towerRushData.ProperName,
-		Difficulty = "unknown",
-		WinroomMarker = "",
-		Towers = {},
-	}
-
-	for i = 1, #towerRushData, 1 do
-		local towerName = towerRushData[i]
-		table.insert(towerRush.Towers, towerName)
-	end
-
-	LEGACY_TOWER_RUSHES += 1
-
-	local towerRushName = `Unnamed {LEGACY_TOWER_RUSHES}`
-	TowerRushes[towerRushName] = towerRush
-
-	return towerRushName
 end
 
 function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
@@ -502,6 +583,14 @@ function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
 	then
 		Local.PlayerTouchedWinpad(playerName, options.TowerName, options.EndingID)
 	end
+end
+
+function Local.OnChildAdded(object: Instance, player: PlayerInfo)
+	object.ChildAdded:Connect(function(instance: Instance)
+		if instance:IsA("Tool") then
+			Local.PlayerEquippedTool(player, instance)
+		end
+	end)
 end
 
 return Shared

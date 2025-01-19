@@ -12,6 +12,7 @@ local config = {
 	CHECKPOINTS_WORKSPACE_WARNING = true,
 	CHECKPOINTS_MISSING_WARNING = true,
 	NO_MINIMUM_TIME_WARNING = true,
+	R15_WARNING = true,
 }
 
 export type PlayerData = typeof(config.DEFAULT_PLAYER_DATA)
