@@ -57,6 +57,8 @@ local Towers: Dictionary<TowerInfo> = {}
 local Players: Dictionary<PlayerInfo> = {}
 local Winpads: List<BasePart> = {}
 
+--- @class MultiTowerServer
+--- Handles the loading of towers, winpads, and portals.
 local Local = {}
 local Shared = {}
 
@@ -301,6 +303,8 @@ function Local.Step(time: number, deltaTime: number)
 	end
 end
 
+--- @within MultiTowerServer
+--- Loads a tower by loading the COs, teleporting the player to the tower, and resetting their timer if needed
 function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer: boolean)
 	local player = Players[playerName]
 	local tower = Towers[towerName]
