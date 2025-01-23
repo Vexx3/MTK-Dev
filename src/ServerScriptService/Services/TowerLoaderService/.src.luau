@@ -37,7 +37,8 @@ local RemotesFolder = ReplicatedStorage.Remotes.TowerGame
 local ClientObjectsFolder = ReplicatedStorage.TowerClientObjects
 local TowerCheckpointsFolder = ServerStorage.TowerCheckpoints
 local WinpadParticles: ParticleEmitter = ServerStorage.WinpadParticles
-local EverpresentCOs = TowersFolder:WaitForChild("EverpresentCOs")
+local StarterPackStudio: Folder = ServerStorage.StarterPackStudio
+local EverpresentCOs = TowersFolder.EverpresentCOs
 
 local RemoteEvents: Dictionary<RemoteEvent> = {}
 local RemoteFunctions: Dictionary<RemoteFunction> = {}
@@ -64,7 +65,36 @@ local Local = {}
 local Shared = {}
 
 function Shared.OnStart()
-	-- later
+	PlayersService.PlayerAdded:Connect(Local.PlayerAdded)
+	PlayersService.PlayerRemoving:Connect(Local.PlayerRemoving)
+	RemoteEvents.RestartRequested.OnServerEvent:Connect(Local.PlayerRequestedRestart)
+	RemoteFunctions.RequestEverpresentCOs.OnServerInvoke = Local.EverpresentCOsRequested
+	RunService.Stepped:Connect(Local.Step)
+
+	do
+		if RunService:IsStudio() then
+			for _, tool in StarterPackStudio:GetChildren() do
+				tool:SetAttribute("DebugItem", true)
+				tool.Parent = StarterPack
+			end
+		end
+
+		for _, tool in StarterPack:GetChildren() do
+			if not tool:IsA("Tool") then
+				return
+			end
+
+			local boostNameValue = tool:FindFirstChild("BoostName")
+			if boostNameValue and boostNameValue:IsA("StringValue") then
+				Util.Warn(
+					`Boost item {tool.Name} uses a StringValue for BoostName, please change it to an attribute, as a StringValue can be manipulated (or even deleted) by the client.`
+				)
+				tool:SetAttribute("BoostName", boostNameValue.Value)
+			end
+		end
+
+		EverpresentCOs.Parent = ServerStorage
+	end
 end
 
 function Local.InitTower(towerFolder: Folder): TowerInfo
