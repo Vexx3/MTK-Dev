@@ -26,7 +26,7 @@ local DefaultDifficulty: Difficulty = {
 local Shared = {}
 
 -- Attributes
-function Shared.GetNumber(Ins: Instance, Name: string): number
+function Shared.GetNumber(Ins: Instance, Name: string)
 	local Value = Ins:FindFirstChild(Name)
 	if Value and Value:IsA("NumberValue") then
 		return Value.Value
@@ -35,7 +35,7 @@ function Shared.GetNumber(Ins: Instance, Name: string): number
 	return Ins:GetAttribute(Name) :: number
 end
 
-function Shared.GetInt(Ins: Instance, Name: string): number
+function Shared.GetInt(Ins: Instance, Name: string)
 	local Val = Ins:FindFirstChild(Name)
 	if Val and Val:IsA("IntValue") then
 		return Val.Value
@@ -44,7 +44,7 @@ function Shared.GetInt(Ins: Instance, Name: string): number
 	return Ins:GetAttribute(Name) :: number
 end
 
-function Shared.GetString(Ins: Instance, Name: string): string
+function Shared.GetString(Ins: Instance, Name: string)
 	local Val = Ins:FindFirstChild(Name)
 	if Val and Val:IsA("StringValue") then
 		return Val.Value
@@ -53,7 +53,7 @@ function Shared.GetString(Ins: Instance, Name: string): string
 	return Ins:GetAttribute(Name) :: string
 end
 
-function Shared.GetBoolean(Ins: Instance, Name: string): boolean
+function Shared.GetBoolean(Ins: Instance, Name: string)
 	local Val = Ins:FindFirstChild(Name)
 	if Val and Val:IsA("BoolValue") then
 		return Val.Value
@@ -62,7 +62,7 @@ function Shared.GetBoolean(Ins: Instance, Name: string): boolean
 	return Ins:GetAttribute(Name) :: boolean
 end
 
-function Shared.IsPlayerPart(Hit: BasePart): (boolean, string)
+function Shared.IsPlayerPart(Hit: BasePart)
 	if Hit.Parent and Hit.Parent:FindFirstChild("Humanoid") then
 		local Player: Player = Players:GetPlayerFromCharacter(Hit.Parent)
 		if Player then
@@ -73,7 +73,7 @@ function Shared.IsPlayerPart(Hit: BasePart): (boolean, string)
 	return false, ""
 end
 
-function Shared.IsPlayerAlive(Character: Model?): boolean
+function Shared.IsPlayerAlive(Character: Model?)
 	if not Character then
 		return false
 	end
@@ -86,7 +86,21 @@ function Shared.IsPlayerAlive(Character: Model?): boolean
 	return false
 end
 
-function Shared.GetDifficulty(DifficultyName: string): Difficulty
+function Shared.IsPointInPart(Point: Vector3, Part: BasePart)
+	local LocalPoint = Part.CFrame:PointToObjectSpace(Point)
+	local UnitPoint = LocalPoint / Part.Size
+
+	return (
+		UnitPoint.X <= 0.5
+		and UnitPoint.X >= -0.5
+		and UnitPoint.Y <= 0.5
+		and UnitPoint.Y >= -0.5
+		and UnitPoint.Z <= 0.5
+		and UnitPoint.Z >= -0.5
+	)
+end
+
+function Shared.GetDifficulty(DifficultyName: string)
 	local Difficulty: Difficulty = Difficulties[DifficultyName]
 	return Difficulty or DefaultDifficulty
 end

@@ -12,8 +12,9 @@ local TowerLoaderService = script.Parent.TowerLoaderService
 local Announcements = require(TowerLoaderService.Announcements)
 local Configuration = require(Configs.Configuration)
 local Types = require(TowerLoaderService.Types)
-local Util = require(TowerLoaderService.Util)
 local TowerRushes = require(Configs.TowerRushes)
+local Util = require(TowerLoaderService.Util)
+local WinpadMaterials = require(TowerLoaderService.WinpadMaterials)
 
 type Dictionary<T> = Types.Dictionary<T>
 type List<T> = Types.List<T>
@@ -292,17 +293,63 @@ function Local.PlayerRemoving(player: Player)
 end
 
 function Local.Step(time: number, deltaTime: number)
-	for i, player in Players do
+	for _, player in Players do
 		player.GameTimer += deltaTime
 
 		if player.CurrentTower ~= "" then
-			local oldTower = player.TowerTimer
+			local oldTowerTimer = player.TowerTimer
 			player.TowerTimer += deltaTime
-			-- TODO: continue later.
+
+			local I = Configuration.TIMER_SYNC_INTERVAL
+			local A = math.floor(oldTowerTimer / I) * I
+			local B = math.floor(player.TowerTimer / I) * I
+
+			if B > A then
+				RemoteEvents.UpdateTowerTimer:FireClient(player.Player, player.TowerTimer)
+			end
+
+			local previousInterval = math.floor((time - deltaTime) / Configuration.CHECKPOINT_INTERVAL)
+				* Configuration.CHECKPOINT_INTERVAL
+			local currentInterval = math.floor(time / Configuration.CHECKPOINT_INTERVAL)
+				* Configuration.CHECKPOINT_INTERVAL
+
+			if previousInterval < currentInterval then
+				local character = player.Player.Character
+
+				if player.CurrentTower ~= "" and character then
+					local tower = Towers[player.CurrentTower]
+					local checkpoint = tower.Checkpoints[player.CurrentTowerCheckpoint]
+					if checkpoint then
+						local point = character:GetPivot().Position
+						local touching = Util.IsPointInPart(point, checkpoint)
+						if touching then
+							player.CurrentTowerCheckpoint += 1
+						end
+					end
+				end
+			end
+		end
+	end
+
+	do
+		local previousInterval = math.floor((time - deltaTime) / Configuration.WINPAD_INTERVAL)
+			* Configuration.WINPAD_INTERVAL
+		local currentInterval = math.floor(time / Configuration.WINPAD_INTERVAL) * Configuration.WINPAD_INTERVAL
+		if previousInterval < currentInterval then
+			for _, instance: BasePart in Winpads do
+				if Configuration.WINPADS_CHANGE_COLOR then
+					instance.Color = Color3.fromHSV(math.random(0, 100) / 100, 1, 1)
+				end
+
+				if Configuration.WINPADS_CHANGE_MATERIAL then
+					instance.Material = WinpadMaterials[math.random(1, #WinpadMaterials)]
+				end
+			end
 		end
 	end
 end
 
+--- @server
 --- @within MultiTowerServer
 --- Loads a tower by loading the COs, teleporting the player to the tower, and resetting their timer if needed
 function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer: boolean)
