@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[523],{7676:e=>{e.exports=JSON.parse('[{"type":"link","href":"/api/MultiTowerServer","label":"\u200bMulti\u200bTower\u200bServer"}]')}}]);
