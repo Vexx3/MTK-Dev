@@ -2,7 +2,6 @@ local BadgeService = game:GetService("BadgeService")
 local PlayersService = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPack = game:GetService("StarterPack")
 local Teams = game:GetService("Teams")
@@ -30,15 +29,15 @@ type TouchOptions = {
 	portal: { normal: boolean?, towerRush: { towerRushName: string }?, lobbyTeleporter: { targetPart: BasePart }? }?,
 }
 
-local TowersFolder = workspace.Towers
-local PortalsFolder = workspace.Portals
-local Markers = workspace.Markers
+local TowerFolder: Folder = workspace.Towers
+local PortalFolder: Folder = workspace.Portals
+local Markers: Folder = workspace.Markers
 local RemotesFolder = ReplicatedStorage.Remotes.TowerGame
 local ClientObjectsFolder = ReplicatedStorage.TowerClientObjects
 local TowerCheckpointsFolder = ServerStorage.TowerCheckpoints
 local WinpadParticles: ParticleEmitter = ServerStorage.WinpadParticles
 local StarterPackStudio: Folder = ServerStorage.StarterPackStudio
-local EverpresentCOs = TowersFolder.EverpresentCOs
+local EverpresentCOs = TowerFolder:WaitForChild("EverpresentCOs")
 
 local RemoteEvents: Dictionary<RemoteEvent> = {}
 local RemoteFunctions: Dictionary<RemoteFunction> = {}
@@ -65,11 +64,11 @@ local Local = {}
 local Shared = {}
 
 function Shared.OnStart()
-	PlayersService.PlayerAdded:Connect(Local.PlayerAdded)
-	PlayersService.PlayerRemoving:Connect(Local.PlayerRemoving)
+	PlayersService.PlayerAdded:Connect(Local.onPlayerAdded)
+	PlayersService.PlayerRemoving:Connect(Local.onPlayerRemoving)
 	RemoteEvents.RestartRequested.OnServerEvent:Connect(Local.PlayerRequestedRestart)
 	RemoteFunctions.RequestEverpresentCOs.OnServerInvoke = Local.EverpresentCOsRequested
-	RunService.Stepped:Connect(Local.Step)
+	RunService.Stepped:Connect(Local.onStepped)
 
 	do
 		if RunService:IsStudio() then
@@ -94,6 +93,22 @@ function Shared.OnStart()
 		end
 
 		EverpresentCOs.Parent = ServerStorage
+
+		for _, towerFolder in TowerFolder:GetChildren() do
+			Local.InitTower(towerFolder)
+		end
+
+		for _, portalPart in PortalFolder:GetChildren() do
+			if portalPart:IsA("BasePart") then
+				Local.InitPortal(portalPart)
+			end
+		end
+
+		for _, marker in Markers:GetChildren() do
+			if marker:IsA("BasePart") then
+				Local.InitMarker(marker)
+			end
+		end
 	end
 end
 
@@ -162,7 +177,7 @@ function Local.InitTower(towerFolder: Folder): TowerInfo
 
 	Towers[acronym] = tower
 
-	for _, v in TowersFolder:GetDescendants() do
+	for _, v in TowerFolder:GetDescendants() do
 		if v.Name == "Winpad" and v:IsA("BasePart") then
 			Local.InitWinpad(acronym, v)
 		end
@@ -291,7 +306,7 @@ function Local.CharacterAdded(character: Model)
 	Local.ResetPlayerInfo(player)
 end
 
-function Local.PlayerAdded(player: Player)
+function Local.onPlayerAdded(player: Player)
 	local info: PlayerInfo = {
 		Player = player,
 		GameTimer = 0,
@@ -318,11 +333,11 @@ function Local.PlayerAdded(player: Player)
 	player.CharacterAdded:Connect(Local.CharacterAdded)
 end
 
-function Local.PlayerRemoving(player: Player)
+function Local.onPlayerRemoving(player: Player)
 	Players[player.Name] = nil
 end
 
-function Local.Step(time: number, deltaTime: number)
+function Local.onStepped(time: number, deltaTime: number)
 	for _, player in Players do
 		player.GameTimer += deltaTime
 
@@ -630,7 +645,7 @@ function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
 	local player = Players[playerName]
 
 	if options.isMarker then
-		local spawnLocation: Instance = Markers:FindFirstChild("SpawnLocation")
+		local spawnLocation = Markers:FindFirstChild("SpawnLocation")
 		assert(
 			spawnLocation and spawnLocation:IsA("BasePart"),
 			"Could not initialize LobbyTP because a SpawnLocation couldn't be found."
