@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[986],{4410:e=>{e.exports=JSON.parse('{"sourceUrl":"https://github.com/Vexx3/MTK-Dev/blob/master","baseUrl":"/MTK-Dev/","classOrder":[],"apiCategories":[]}')}}]);
