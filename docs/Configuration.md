@@ -16,7 +16,7 @@ There exist many configuration modules throughout the kit that each serve their 
 
 Many objects in the MTK (specifically Towers, Tower Rushes, and Endings), depend on Difficulty objects for describing it’s difficulty. These objects store information about single difficulty, it’s proper name, it’s color, etc.
 
-All difficulty objects are stored in a `ModuleScript` named `Difficulties`, located in the `ServerScriptService.GameData` folder. From here you can modify existing difficulties, remove them, or add  more. Here is a what an entry looks like:
+All difficulty objects are stored in a `ModuleScript` named `Difficulties`, located in the `ServerScriptService.GameData` folder. From here you can modify existing difficulties, remove them, or add more. Here is a what an entry looks like:
 
 ```lua
 Challenging = {
@@ -32,7 +32,7 @@ Challenging = {
 - For this example, the **ID** of the difficulty is `Challenging`, the ID should be unique for every difficulty, as it’s used for referring to this difficulty by other objects in the MTK. For example, if I had a difficulty with the ID `Nefarious`, and I wanted to configure a tower to use this difficulty, I would set it’s `Difficulty` property to `Nefarious` as well.
 - The `Title` property should be the proper name of the difficulty that is displayed to the players.
 - The `Rating` property is currently unused, but describes the difficulty’s placement if mapped on the spectrum of every other difficulty. For example, JToH places Easy at 1, Medium at 2, Hard at 3, etc.
-- The `FancyFont` property describes whether or not an alternate font should be used for win messages. If false, the default font used for chat messages are used, Source Sans Bold 18pt. Otherwise, Bodoni 20pt will be used instead. In JToH this is typically used for Catastrophic and  above.
+- The `FancyFont` property describes whether or not an alternate font should be used for win messages. If false, the default font used for chat messages are used, Source Sans Bold 18pt. Otherwise, Bodoni 20pt will be used instead. In JToH this is typically used for Catastrophic and above.
 - The `Color` property describes the color of the difficulty, at the moment it’s only used for win messages.
 - The `GlobalAnnouncement` property dictates whether or not completions of towers using this difficulty should be broadcast globally, meaning across all servers in the game. In JToH, this is used for all soul-crushing difficulties.
 
