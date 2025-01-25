@@ -78,7 +78,7 @@ If the checkpoints folder is kept in the tower folder, you will be warned for do
 
 :::danger
 
-Every instance inside of the checkpoints folder must be named in order, with the very first checkpoint being named `1`, the second being named `2`, the third being named `3`, etc. Failure to do so will result in an error. Every instance must be also `BasePart`.
+Every instance inside of the checkpoints folder must be named in order, with the very first checkpoint being named `1`, the second being named `2`, the third being named `3`, etc. Failure to do so will result in an error. Every instance must be also [BasePart](https://create.roblox.com/docs/reference/engine/classes/BasePart).
 
 :::
 
