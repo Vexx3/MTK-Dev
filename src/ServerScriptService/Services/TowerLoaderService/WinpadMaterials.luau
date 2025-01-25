@@ -14,7 +14,6 @@ return {
 	Enum.Material.Slate,
 	Enum.Material.Fabric,
 	Enum.Material.SmoothPlastic,
-	Enum.Material.Aluminum,
 	Enum.Material.Concrete,
 	Enum.Material.DiamondPlate,
 	Enum.Material.CorrodedMetal,

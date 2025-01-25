@@ -1,15 +1,12 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local TowerLoaderService = script.Parent.Parent.TowerLoaderService
-
-local Types = require(TowerLoaderService.Types)
+local Difficulties = require(ReplicatedStorage.Configs.Difficulties)
+local Types = require(ReplicatedStorage.Shared.Types)
 
 type Dictionary<T> = Types.Dictionary<T>
 type List<T> = Types.List<T>
 type Difficulty = Types.DifficultyInfo
-
-local Difficulties: Dictionary<Difficulty> = {}
 
 local warningTag = "[MTK]"
 

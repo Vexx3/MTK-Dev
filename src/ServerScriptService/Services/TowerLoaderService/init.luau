@@ -7,13 +7,12 @@ local StarterPack = game:GetService("StarterPack")
 local Teams = game:GetService("Teams")
 
 local Configs = ReplicatedStorage.Configs
-local TowerLoaderService = script.Parent.TowerLoaderService
-local Announcements = require(TowerLoaderService.Announcements)
+local Announcements = require(script.Announcements)
 local Configuration = require(Configs.Configuration)
-local Types = require(TowerLoaderService.Types)
+local Types = require(ReplicatedStorage.Shared.Types)
 local TowerRushes = require(Configs.TowerRushes)
-local Util = require(TowerLoaderService.Util)
-local WinpadMaterials = require(TowerLoaderService.WinpadMaterials)
+local Util = require(script.Util)
+local WinpadMaterials = require(script.WinpadMaterials)
 
 type Dictionary<T> = Types.Dictionary<T>
 type List<T> = Types.List<T>
@@ -33,7 +32,7 @@ local TowerFolder: Folder = workspace.Towers
 local PortalFolder: Folder = workspace.Portals
 local Markers: Folder = workspace.Markers
 local RemotesFolder = ReplicatedStorage.Remotes.TowerGame
-local ClientObjectsFolder = ReplicatedStorage.TowerClientObjects
+local ClientObjectsFolder = ServerStorage.TowerClientObjects
 local TowerCheckpointsFolder = ServerStorage.TowerCheckpoints
 local WinpadParticles: ParticleEmitter = ServerStorage.WinpadParticles
 local StarterPackStudio: Folder = ServerStorage.StarterPackStudio
@@ -80,7 +79,7 @@ function Shared.OnStart()
 
 		for _, tool in StarterPack:GetChildren() do
 			if not tool:IsA("Tool") then
-				return
+				continue
 			end
 
 			local boostNameValue = tool:FindFirstChild("BoostName")
@@ -261,7 +260,7 @@ function Local.InitTouchHandler(part: BasePart, touchOptions: TouchOptions)
 end
 
 function Local.ConvertLegacyTowerRush(module: ModuleScript)
-	local towerRushData = require(module)
+	local towerRushData = require(module) :: any
 	local towerRush: TowerRush = {
 		BadgeID = towerRushData.BadgeID,
 		Title = towerRushData.ProperName,
@@ -422,7 +421,7 @@ function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer
 	player.CurrentTower = towerName
 	player.CurrentTowerCheckpoint = 1
 	player.IsLoadingTower = true
-	player.player:LoadCharacter()
+	player.Player:LoadCharacter()
 
 	repeat
 		task.wait(0.05)
@@ -476,8 +475,8 @@ function Local.PlayerLoadTowerRush(playerName: string, towerRushName: string)
 end
 
 function Local.PlayerTouchedWinpad(playerName: string, towerName: string, endingId: string)
-	local player: PlayerInfo = Players[playerName]
-	local tower: TowerInfo = Towers[towerName]
+	local player = Players[playerName]
+	local tower = Towers[towerName]
 	if not (player and tower) or player.TouchEventBusy then
 		return
 	end

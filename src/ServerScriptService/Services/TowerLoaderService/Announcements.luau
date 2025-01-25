@@ -2,12 +2,10 @@ local HttpService = game:GetService("HttpService")
 local MessagingService = game:GetService("MessagingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local TowerLoaderService = script.Parent.Parent.TowerLoaderService
-
 local Configuration = require(ReplicatedStorage.Configs.Configuration)
 local KickMessages = require(ReplicatedStorage.Configs.KickMessages)
-local Types = require(TowerLoaderService.Types)
-local Util = require(TowerLoaderService.Util)
+local Types = require(ReplicatedStorage.Shared.Types)
+local Util = require(script.Parent.Util)
 
 type Dictionary<T> = Types.Dictionary<T>
 type List<T> = Types.List<T>
