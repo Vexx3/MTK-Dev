@@ -28,11 +28,11 @@ do
 	end
 end
 
-local TOWER_TIMER = 0
-local RESTART_TIME = 0
+local towerTimer = 0
+local restartTime = 0
 local RESTART_TIME_MAX = 5
-local RESTART_DEBOUNCE = false
-local CURRENT_TOWER = ""
+local restartDebounce = false
+local currentTower = ""
 
 local Local = {}
 local Shared = {}
@@ -62,15 +62,15 @@ function Shared.OnStart()
 end
 
 function Local.LoadTower(acronym: string, purist: boolean, resetTimer: boolean)
-	CURRENT_TOWER = acronym
-	TOWER_TIMER = if resetTimer then 0 else TOWER_TIMER
+	currentTower = acronym
+	towerTimer = if resetTimer then 0 else towerTimer
 
 	ResetEffectGui:Fire()
 
-	RESTART_TIME = 0
+	restartTime = 0
 
-	if RESTART_TIME >= RESTART_TIME_MAX then
-		RESTART_DEBOUNCE = true
+	if restartTime >= RESTART_TIME_MAX then
+		restartDebounce = true
 	end
 
 	if not purist then
@@ -85,9 +85,9 @@ function Local.LoadTower(acronym: string, purist: boolean, resetTimer: boolean)
 end
 
 function Local.UnloadTower()
-    CURRENT_TOWER = ""
-    TOWER_TIMER = 0
-    RESTART_TIME = 0
+    currentTower = ""
+    towerTimer = 0
+    restartTime = 0
     
     ResetEffectGui:Fire()
     ClientObjects.UnloadClientObjects()
@@ -100,7 +100,7 @@ function Local.UnloadTower()
 end
 
 function Local.CorrectTimer(time: number)
-    TOWER_TIMER = time
+    towerTimer = time
 end
 
 function Local.UpdateTowerRush(index: number, _end: number)
@@ -112,7 +112,7 @@ function Local.onChildAdded(instance: Instance)
         if inst:IsA("Tool") then
             local boostName: string? = inst:GetAttribute("BoostName") :: string
 
-            if boostName and boostName ~= "" and CURRENT_TOWER ~= "" then
+            if boostName and boostName ~= "" and currentTower ~= "" then
                 GUI:SetBoostsUsed(true)
             end
         end
@@ -124,28 +124,28 @@ function Local.onCharacterAdded(character: Model)
 end
 
 function Local.onStepped(deltaTime: number)
-    if CURRENT_TOWER == "" then
-        TOWER_TIMER = 0
-        RESTART_TIME = 0
+    if currentTower == "" then
+        towerTimer = 0
+        restartTime = 0
     else
-        TOWER_TIMER += deltaTime
+        towerTimer += deltaTime
 
         if UserInputService:IsKeyDown(Enum.KeyCode.R) then
-            if not RESTART_DEBOUNCE then
-                RESTART_TIME = math.min(RESTART_TIME + deltaTime, RESTART_TIME_MAX)
-                if RESTART_TIME >= RESTART_TIME_MAX then
-                    RESTART_DEBOUNCE = true
+            if not restartDebounce then
+                restartTime = math.min(restartTime + deltaTime, RESTART_TIME_MAX)
+                if restartTime >= RESTART_TIME_MAX then
+                    restartDebounce = true
                     RemoteEvents.RestartRequested:FireServer()
                 end
             end
         else
-            RESTART_TIME = math.max(RESTART_TIME - deltaTime, 0)
-            RESTART_DEBOUNCE = false
+            restartTime = math.max(restartTime - deltaTime, 0)
+            restartDebounce = false
         end
     end
 
-    GUI:SetRestartLabel(RESTART_TIME / RESTART_TIME_MAX)
-    GUI:SetTowerTimer(TOWER_TIMER)
+    GUI:SetRestartLabel(restartTime / RESTART_TIME_MAX)
+    GUI:SetTowerTimer(towerTimer)
 end
 
 return Shared
