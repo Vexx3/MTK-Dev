@@ -9,7 +9,58 @@
       "$path": "src/ReplicatedFirst"
     },
     "ReplicatedStorage": {
-      "$path": "src/ReplicatedStorage"
+      "$path": "src/ReplicatedStorage",
+      "Remotes": {
+        "$className": "Folder",
+        "PlayerData": {
+          "$className": "Folder",
+          "SetState": {
+            "$className": "RemoteEvent"
+          },
+          "Start": {
+            "$className": "RemoteEvent"
+          },
+          "UpdateState": {
+            "$className": "RemoteEvent"
+          }
+        },
+        "TowerGame": {
+          "$className": "Folder",
+          "RequestEverpresentCOs": {
+            "$className": "RemoteFunction"
+          },
+          "GameAnnouncement": {
+            "$className": "RemoteEvent"
+          },
+          "GameWinAnnouncement": {
+            "$className": "RemoteEvent"
+          },
+          "LoadTower": {
+            "$className": "RemoteEvent"
+          },
+          "ResetEffectGui": {
+            "$className": "BindableEvent"
+          },
+          "RestartRequested": {
+            "$className": "RemoteEvent"
+          },
+          "UnloadTower": {
+            "$className": "RemoteEvent"
+          },
+          "UpdateTowerRush": {
+            "$className": "RemoteEvent"
+          },
+          "UpdateTowerTimer": {
+            "$className": "RemoteEvent"
+          }
+        }
+      },
+      "ChangeLighting": {
+        "$className": "BindableEvent"
+      },
+      "DamageEvent": {
+        "$className": "RemoteEvent"
+      }
     },
     "ServerScriptService": {
       "$path": "src/ServerScriptService"
