@@ -11,7 +11,7 @@ local Announcements = require(script.Announcements)
 local Configuration = require(Configs.Configuration)
 local Types = require(ReplicatedStorage.Shared.Types)
 local TowerRushes = require(Configs.TowerRushes)
-local Util= require(ReplicatedStorage.Shared.Util)
+local Util = require(ReplicatedStorage.Shared.Util)
 local WinpadMaterials = require(script.WinpadMaterials)
 
 type Dictionary<T> = Types.Dictionary<T>
@@ -236,7 +236,7 @@ function Local.InitPortal(portalPart: BasePart)
 		local targetPart = Markers:FindFirstChild(targetPartName, true)
 
 		if targetPart and targetPart:IsA("BasePart") then
-			Local.InitTouchHandler(portalPart, { TowerName = towerRushValue.Value, portal = { normal = true } })
+			Local.InitTouchHandler(portalPart, { portal = { lobbyTeleporter = { targetPart = targetPart } } })
 		else
 			Util:Warn(
 				`Could not setup teleporter "{portalPart:GetFullName()}" because it does not reference a BasePart.`
