@@ -81,6 +81,9 @@
       "StarterPlayerScripts": {
         "$path": "src/StarterPlayer/StarterPlayerScripts"
       }
+    },
+    "Teams": {
+      "$path": "src/Teams"
     }
   }
 }
