@@ -6,6 +6,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local ClientObjects = require(script.ClientObjects)
 local Types = require(ReplicatedStorage.Shared.Types)
+local GUI = require(script.GUI)
 
 type Dictionary<T> = Types.Dictionary<T>
 
@@ -44,7 +45,9 @@ function Shared.OnStart()
 
         Player.CharacterAdded:Connect(Local.onCharacterAdded)
 
-        -- TODO: Add GUI
+        GUI:SetTowerTimer(0)
+        GUI:SetTowerAcronym("")
+        GUI:SetTowerRush(0, 0)
     end
 end
 
@@ -79,7 +82,11 @@ function Local.UnloadTower()
     ResetEffectGui:Fire()
     ClientObjects.UnloadClientObjects()
 
-    -- TODO: Add GUI
+    GUI:SetTowerAcronym("")
+    GUI:SetTowerTimer(0)
+    GUI:SetTowerRush(0, 0)
+    GUI:SetBoostsUsed(false)
+    GUI:SetRestartLabel(0)
 end
 
 function Local.CorrectTimer(time: number)
@@ -87,16 +94,16 @@ function Local.CorrectTimer(time: number)
 end
 
 function Local.UpdateTowerRush(index: number, _end: number)
-    -- TODO: Add GUI
+    GUI:SetTowerRush(index, _end)
 end
 
 function Local.onChildAdded(instance: Instance)
     instance.ChildAdded:Connect(function(inst: Instance)
         if inst:IsA("Tool") then
-            local boostName: string? = inst:GetAttribute("BoostName")
+            local boostName: string? = inst:GetAttribute("BoostName") :: string
 
             if boostName and boostName ~= "" and CURRENT_TOWER ~= "" then
-                -- TODO: Add GUI
+                GUI:SetBoostsUsed(true)
             end
         end
     end)
@@ -113,8 +120,6 @@ function Local.onStepped(deltaTime: number)
     else
         TOWER_TIMER += deltaTime
 
-        local previousRestartTime = deltaTime
-
         if UserInputService:IsKeyDown(Enum.KeyCode.R) then
             if not RESTART_DEBOUNCE then
                 RESTART_TIME = math.min(RESTART_TIME + deltaTime, RESTART_TIME_MAX)
@@ -129,7 +134,8 @@ function Local.onStepped(deltaTime: number)
         end
     end
 
-    -- TODO: Add GUI
+    GUI:SetRestartLabel(RESTART_TIME / RESTART_TIME_MAX)
+    GUI:SetTowerTimer(TOWER_TIMER)
 end
 
 return Shared

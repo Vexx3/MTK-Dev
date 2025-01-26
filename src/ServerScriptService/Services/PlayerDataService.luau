@@ -25,7 +25,7 @@ local Shared = {}
 
 function Shared.OnStart()
 	Remotes.Start.OnServerEvent:Connect(function(player: Player)
-		local state = Shared.GetData(player)
+		local state = Shared:GetData(player)
 		if state then
 			Remotes.SetState:FireClient(player, state)
 		end
@@ -39,7 +39,7 @@ function Shared.OnStart()
 	Players.PlayerRemoving:Connect(Local.RemoveProfile)
 end
 
-function Shared.UpdateState(player: Player, action: StateAction)
+function Shared:UpdateState(player: Player, action: StateAction)
 	local profile = Profiles[player]
 	if not profile then
 		return
@@ -53,8 +53,8 @@ function Shared.UpdateState(player: Player, action: StateAction)
 	end
 end
 
-function Local.CreateLeaderstats(player: Player)
-	local data = Shared.GetData(player)
+function Local:CreateLeaderstats(player: Player)
+	local data = Shared:GetData(player)
 
 	local leaderstats = Instance.new("Folder")
 	leaderstats.Name = "leaderstats"
@@ -96,20 +96,20 @@ function Local.LoadProfile(player: Player)
 		profile:EndSession()
 	end
 
-	Local.CreateLeaderstats(player)
+	Local:CreateLeaderstats(player)
 	Remotes.SetState:FireClient(player, profile.Data)
 
 	return nil
 end
 
-function Local.RemoveProfile(player: Player)
+function Local:RemoveProfile(player: Player)
 	local profile = Profiles[player]
 	if profile ~= nil then
 		profile:EndSession()
 	end
 end
 
-function Shared.GetData(player: Player): Configuration.PlayerData?
+function Shared:GetData(player: Player): Configuration.PlayerData?
 	local profile = Profiles[player]
 	if not profile then
 		return
@@ -119,7 +119,7 @@ function Shared.GetData(player: Player): Configuration.PlayerData?
 end
 
 function Shared.UpdateTowers(player: Player, towerCount: number)
-	local data = Shared.GetData(player)
+	local data = Shared:GetData(player)
 	if not data then
 		return
 	end

@@ -5,7 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Configuration = require(ReplicatedStorage.Configs.Configuration)
 local KickMessages = require(ReplicatedStorage.Configs.KickMessages)
 local Types = require(ReplicatedStorage.Shared.Types)
-local Util = require(script.Parent.Util)
+local Util = require(ReplicatedStorage.Shared.Util)
 
 type Dictionary<T> = Types.Dictionary<T>
 type List<T> = Types.List<T>
@@ -55,7 +55,7 @@ function Shared.OnStart()
 end
 
 function Local.BroadCastWinAnnouncement(Info: WinMessageInfo)
-	local EndingDifficulty = Util.GetDifficulty(Info.DifficultyName)
+	local EndingDifficulty = Util:GetDifficulty(Info.DifficultyName)
 
 	local ClientMessageInfo: ClientWinMessageInfo = {
 		PlayerName = Info.PlayerName,
@@ -92,7 +92,7 @@ function Shared.AntiCheatKick(Player: Player, Reason: string)
 end
 
 function Shared.WinAnnouncement(Player: PlayerInfo, EndingName: string, DifficultyName: string)
-	local EndingDifficulty = Util.GetDifficulty(DifficultyName)
+	local EndingDifficulty = Util:GetDifficulty(DifficultyName)
 
 	local Info: WinMessageInfo = {
 		MessageID = HttpService:GenerateGUID(false),

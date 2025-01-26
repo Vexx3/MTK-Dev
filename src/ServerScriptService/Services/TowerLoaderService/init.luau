@@ -11,7 +11,7 @@ local Announcements = require(script.Announcements)
 local Configuration = require(Configs.Configuration)
 local Types = require(ReplicatedStorage.Shared.Types)
 local TowerRushes = require(Configs.TowerRushes)
-local Util = require(script.Util)
+local Util= require(ReplicatedStorage.Shared.Util)
 local WinpadMaterials = require(script.WinpadMaterials)
 
 type Dictionary<T> = Types.Dictionary<T>
@@ -84,7 +84,7 @@ function Shared.OnStart()
 
 			local boostNameValue = tool:FindFirstChild("BoostName")
 			if boostNameValue and boostNameValue:IsA("StringValue") then
-				Util.Warn(
+				Util:Warn(
 					`Boost item {tool.Name} uses a StringValue for BoostName, please change it to an attribute, as a StringValue can be manipulated (or even deleted) by the client.`
 				)
 				tool:SetAttribute("BoostName", boostNameValue.Value)
@@ -123,7 +123,7 @@ function Local.InitTower(towerFolder: Folder): TowerInfo
 	if checkpointsFolder and checkpointsFolder.Parent ~= TowerCheckpointsFolder then
 		checkpointsFolder.Name = acronym
 		checkpointsFolder.Parent = TowerCheckpointsFolder
-		Util.Warn(
+		Util:Warn(
 			`{acronym} is storing it's checkpoints in the workspace! consider moving the checkpoints folder to ServerStorage -> TowerCheckpoints`
 		)
 	end
@@ -149,18 +149,18 @@ function Local.InitTower(towerFolder: Folder): TowerInfo
 	end
 
 	if checkpointCount == 0 and Configuration.CHECKPOINTS_MISSING_WARNING then
-		Util.Warn(`{acronym} has no checkpoints!`)
+		Util:Warn(`{acronym} has no checkpoints!`)
 	end
 
 	local tower: TowerInfo = {
-		Name = Util.GetString(towerFolder, "ProperName") or acronym,
-		Difficulty = Util.GetString(towerFolder, "Difficulty") or "default",
-		BadgeID = Util.GetInt(towerFolder, "BadgeID") or 0,
+		Name = Util:GetString(towerFolder, "ProperName") or acronym,
+		Difficulty = Util:GetString(towerFolder, "Difficulty") or "default",
+		BadgeID = Util:GetInt(towerFolder, "BadgeID") or 0,
 		Folder = towerFolder,
 		SpawnLocation = spawnLocation,
 		ClientObjects = clientObjects,
 		Endings = {},
-		MinimumTime = Util.GetNumber(towerFolder, "MinimumTime") or 0,
+		MinimumTime = Util:GetNumber(towerFolder, "MinimumTime") or 0,
 		Checkpoints = checkpointsList,
 		CheckpointCount = checkpointCount,
 	}
@@ -171,7 +171,7 @@ function Local.InitTower(towerFolder: Folder): TowerInfo
 	end
 
 	if tower.MinimumTime == 0 and Configuration.NO_MINIMUM_TIME_WARNING then
-		Util.Warn(`{acronym} has no mininum time, it is vulnerable to being cheesed!`)
+		Util:Warn(`{acronym} has no mininum time, it is vulnerable to being cheesed!`)
 	end
 
 	Towers[acronym] = tower
@@ -189,10 +189,10 @@ function Local.InitWinpad(towerName: string, winpad: BasePart)
 	local Particles = WinpadParticles:Clone()
 	Particles.Parent = winpad
 
-	local endingId = Util.GetString(winpad, "EndingID") or towerName
+	local endingId = Util:GetString(winpad, "EndingID") or towerName
 	winpad:SetAttribute("EndingID", endingId)
 
-	if not Util.GetString(winpad, "ParentTower") then
+	if not Util:GetString(winpad, "ParentTower") then
 		assert(towerName ~= "", `Could not setup winpad {winpad:GetFullName()} because its parent tower is undefined.`)
 		winpad:SetAttribute("ParentTower", towerName)
 	end
@@ -201,12 +201,12 @@ function Local.InitWinpad(towerName: string, winpad: BasePart)
 	assert(Tower, `Could not setup winpad {winpad:GetFullName()} because its parent tower does not exist.`)
 
 	Tower.Endings[endingId] = {
-		Name = Util.GetString(winpad, "EndingName") or Tower.Name,
-		Difficulty = Util.GetString(winpad, "Difficulty") or Tower.Difficulty,
-		BadgeID = Util.GetInt(winpad, "BadgeID") or 0,
-		PreventTowerBadge = Util.GetBoolean(winpad, "PreventTowerBadge") or false,
+		Name = Util:GetString(winpad, "EndingName") or Tower.Name,
+		Difficulty = Util:GetString(winpad, "Difficulty") or Tower.Difficulty,
+		BadgeID = Util:GetInt(winpad, "BadgeID") or 0,
+		PreventTowerBadge = Util:GetBoolean(winpad, "PreventTowerBadge") or false,
 		ParentTower = towerName,
-		WinroomMarker = (Util.GetString(winpad, "WinroomMarker") or Util.GetString(winpad, "Winroom")),
+		WinroomMarker = (Util:GetString(winpad, "WinroomMarker") or Util:GetString(winpad, "Winroom")),
 	}
 
 	Local.InitTouchHandler(winpad, { TowerName = towerName, EndingID = endingId })
@@ -238,12 +238,12 @@ function Local.InitPortal(portalPart: BasePart)
 		if targetPart and targetPart:IsA("BasePart") then
 			Local.InitTouchHandler(portalPart, { TowerName = towerRushValue.Value, portal = { normal = true } })
 		else
-			Util.Warn(
+			Util:Warn(
 				`Could not setup teleporter "{portalPart:GetFullName()}" because it does not reference a BasePart.`
 			)
 		end
 	else
-		Util.Warn(`Part "{portalPart.Name}" was found in the portal folder but it isn't a portal. `)
+		Util:Warn(`Part "{portalPart.Name}" was found in the portal folder but it isn't a portal. `)
 	end
 end
 
@@ -255,7 +255,7 @@ end
 
 function Local.InitTouchHandler(part: BasePart, touchOptions: TouchOptions)
 	part.Touched:Connect(function(otherPart)
-		Local.OnTouch(otherPart, touchOptions)
+		Local.onTouch(otherPart, touchOptions)
 	end)
 end
 
@@ -282,10 +282,10 @@ function Local.ConvertLegacyTowerRush(module: ModuleScript)
 	return towerRushName
 end
 
-function Local.CharacterAdded(character: Model)
+function Local.onCharacterAdded(character: Model)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if humanoid and humanoid.RigType == Enum.HumanoidRigType.R15 and Configuration.R15_WARNING then
-		Util.Warn(
+		Util:Warn(
 			"Character spawned with R15 rig type, most obbying techniques are impossible. Ensure that the rig type is R6 in Game Settings."
 		)
 	end
@@ -295,7 +295,7 @@ function Local.CharacterAdded(character: Model)
 		return
 	end
 
-	Local.OnChildAdded(character, player)
+	Local.onChildAdded(character, player)
 
 	if player.IsLoadingTower then
 		return
@@ -325,11 +325,11 @@ function Local.onPlayerAdded(player: Player)
 	Players[player.Name] = info
 
 	if player.Character then
-		Local.CharacterAdded(player.Character)
+		Local.onCharacterAdded(player.Character)
 	end
 
 	player.Team = Teams.Start
-	player.CharacterAdded:Connect(Local.CharacterAdded)
+	player.CharacterAdded:Connect(Local.onCharacterAdded)
 end
 
 function Local.onPlayerRemoving(player: Player)
@@ -365,7 +365,7 @@ function Local.onStepped(time: number, deltaTime: number)
 					local checkpoint = tower.Checkpoints[player.CurrentTowerCheckpoint]
 					if checkpoint then
 						local point = character:GetPivot().Position
-						local touching = Util.IsPointInPart(point, checkpoint)
+						local touching = Util:IsPointInPart(point, checkpoint)
 						if touching then
 							player.CurrentTowerCheckpoint += 1
 						end
@@ -404,7 +404,7 @@ function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer
 	end
 
 	if not tower then
-		Util.Warn(`Unknown tower {towerName}!`)
+		Util:Warn(`Unknown tower {towerName}!`)
 		return
 	end
 
@@ -434,7 +434,7 @@ function Local.PlayerLoadTower(playerName: string, towerName: string, resetTimer
 			ForceField:Destroy()
 		end
 
-		Util.TeleportPlayerToPartWithWait(player.Player, tower.SpawnLocation)
+		Util:TeleportPlayerToPartWithWait(player.Player, tower.SpawnLocation)
 	end
 
 	local oldCOFolder = player.Player:FindFirstChild("ClientSidedObjects")
@@ -629,14 +629,14 @@ function Local.TeleportToWinroom(player: PlayerInfo, winroomMarker: string)
 		else Markers:FindFirstChild("WinroomSpawn", true)
 
 	if winroomPart and winroomPart:IsA("BasePart") then
-		Util.TeleportPlayerToPartWithWait(player.Player, winroomPart)
+		Util:TeleportPlayerToPartWithWait(player.Player, winroomPart)
 	end
 
 	player.TouchEventBusy = false
 end
 
-function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
-	local isPlayer, playerName = Util.IsPlayerPart(otherPart)
+function Local.onTouch(otherPart: BasePart, options: TouchOptions)
+	local isPlayer, playerName = Util:IsPlayerPart(otherPart)
 	if not isPlayer then
 		return
 	end
@@ -651,7 +651,7 @@ function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
 		)
 
 		player.Player.Team = Teams.Start
-		Util.TeleportPlayerToPart(player.Player, spawnLocation)
+		Util:TeleportPlayerToPart(player.Player, spawnLocation)
 
 		return
 	end
@@ -663,7 +663,7 @@ function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
 			Local.PlayerLoadTowerRush(playerName, options.portal.towerRush.towerRushName)
 		elseif options.portal.lobbyTeleporter and options.portal.lobbyTeleporter.targetPart then
 			player.TouchEventBusy = true
-			Util.TeleportPlayerToPart(player.Player, options.portal.lobbyTeleporter.targetPart)
+			Util:TeleportPlayerToPart(player.Player, options.portal.lobbyTeleporter.targetPart)
 			player.TouchEventBusy = false
 		end
 
@@ -674,13 +674,13 @@ function Local.OnTouch(otherPart: BasePart, options: TouchOptions)
 		options.TowerName
 		and options.EndingID
 		and not player.TouchEventBusy
-		and Util.IsPlayerAlive(player.Player.Character)
+		and Util:IsPlayerAlive(player.Player.Character)
 	then
 		Local.PlayerTouchedWinpad(playerName, options.TowerName, options.EndingID)
 	end
 end
 
-function Local.OnChildAdded(object: Instance, player: PlayerInfo)
+function Local.onChildAdded(object: Instance, player: PlayerInfo)
 	object.ChildAdded:Connect(function(instance: Instance)
 		if instance:IsA("Tool") then
 			Local.PlayerEquippedTool(player, instance)
