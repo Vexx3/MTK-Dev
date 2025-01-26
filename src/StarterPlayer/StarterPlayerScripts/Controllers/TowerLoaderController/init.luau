@@ -18,6 +18,16 @@ local RemoteEvents: Dictionary<RemoteEvent> = {}
 local RemoteFunctions: Dictionary<RemoteFunction> = {}
 local ResetEffectGui: BindableEvent = RemotesFolder:WaitForChild("ResetEffectGui") :: BindableEvent
 
+do
+	for _, v: Instance in RemotesFolder:GetChildren() do
+		if v:IsA("RemoteEvent") then
+			RemoteEvents[v.Name] = v
+		elseif v:IsA("RemoteFunction") then
+			RemoteFunctions[v.Name] = v
+		end
+	end
+end
+
 local TOWER_TIMER = 0
 local RESTART_TIME = 0
 local RESTART_TIME_MAX = 5

@@ -19,6 +19,16 @@ local config = {
 	CHECKPOINTS_MISSING_WARNING = true,
 	NO_MINIMUM_TIME_WARNING = true,
 	R15_WARNING = true,
+
+	WIN_MESSAGE = "{PlayerName} has beaten {EndingName} in {Time}{BoostsUsed}",
+	WIN_MESSAGE_BOOSTS_USED = ", Boosts used: {BoostList}",
+
+	CHAT_FONT = "<font color='{FontColor}' size='{FontSize}' face='{FontFace}'>{Message}</font>",
+	CHAT_CHANNEL = "RBXSystem",
+	CHAT_FONT_FACE = Enum.Font.GothamBold,
+	CHAT_FONT_SIZE = 14,
+	CHAT_FANCY_FONT_FACE = Enum.Font.Bodoni,
+	CHAT_FANCY_FONT_SIZE = 18,
 }
 
 export type PlayerData = typeof(config.DEFAULT_PLAYER_DATA)

@@ -127,4 +127,14 @@ export type DifficultyInfo = {
 	GlobalAnnouncement: boolean,
 }
 
+export type ClientWinMessageInfo = {
+	PlayerName: string,
+	EndingName: string,
+	Time: number,
+	BoostsUsed: { [string]: string },
+
+	Color: Color3,
+	FancyFont: boolean,
+}
+
 return nil

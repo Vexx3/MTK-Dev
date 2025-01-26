@@ -65,6 +65,21 @@ function Shared:IsPointInPart(point: Vector3, part: BasePart)
 	)
 end
 
+function Shared:FormatTimeSyntax(text: string)
+	local newText = text:gsub("{Time:%d+%.?%d*}", function(Match: string)
+		local numStart, numEnd = Match:find("%d+%.?%d*")
+		if numStart and numEnd then
+			local timeText = Match:sub(numStart, numEnd)
+
+			return Shared:FormatTimer(tonumber(timeText) or 0)
+		else
+			return ""
+		end
+	end)
+
+	return newText
+end
+
 function Shared:FormatTimer(time: number)
 	local milliseconds = string.format("%02d", math.floor((time % 1) * 100))
 	local seconds = string.format("%02d", math.floor(time % 60))
