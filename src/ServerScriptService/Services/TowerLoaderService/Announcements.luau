@@ -54,7 +54,7 @@ function Shared.OnStart()
 	MessagingService:SubscribeAsync("GlobalWin", Local.GlobalWinMessage)
 end
 
-function Local.BroadCastWinAnnouncement(Info: WinMessageInfo)
+function Local:BroadCastWinAnnouncement(Info: WinMessageInfo)
 	local EndingDifficulty = Util:GetDifficulty(Info.DifficultyName)
 
 	local ClientMessageInfo: ClientWinMessageInfo = {
@@ -68,30 +68,30 @@ function Local.BroadCastWinAnnouncement(Info: WinMessageInfo)
 	RemoteEvents.GameWinAnnouncement:FireAllClients(ClientMessageInfo)
 end
 
-function Local.GlobalWinMessage(Message: Message)
+function Local:GlobalWinMessage(Message: Message)
 	local Info: WinMessageInfo = Message.Data
 	if Info.MessageID == LatestGlobalMessageID then
 		return
 	end
 
-	Local.BroadCastWinAnnouncement(Info)
+	Local:BroadCastWinAnnouncement(Info)
 end
 
-function Shared.GameAnnouncement(Message: string, Color: Color3, FancyText: boolean?)
+function Shared:GameAnnouncement(Message: string, Color: Color3, FancyText: boolean?)
 	RemoteEvents.GameAnnouncement:FireAllClients(Message, Color, FancyText)
 end
 
-function Shared.AntiCheatKick(Player: Player, Reason: string)
+function Shared:AntiCheatKick(Player: Player, Reason: string)
 	local Message: string = KickMessages[math.random(1, #KickMessages)]:gsub(
 		"{Player}",
 		if Configuration.USE_DISPLAY_NAME then Player.DisplayName else Player.Name
 	)
 
-	Shared.GameAnnouncement(Message, Color3.new(1, 0, 0))
+	Shared:GameAnnouncement(Message, Color3.new(1, 0, 0))
 	Player:Kick(Reason)
 end
 
-function Shared.WinAnnouncement(Player: PlayerInfo, EndingName: string, DifficultyName: string)
+function Shared:WinAnnouncement(Player: PlayerInfo, EndingName: string, DifficultyName: string)
 	local EndingDifficulty = Util:GetDifficulty(DifficultyName)
 
 	local Info: WinMessageInfo = {
@@ -108,7 +108,7 @@ function Shared.WinAnnouncement(Player: PlayerInfo, EndingName: string, Difficul
 		MessagingService:PublishAsync("GlobalWin", Info)
 	end
 
-    Local.BroadCastWinAnnouncement(Info)
+    Local:BroadCastWinAnnouncement(Info)
 end
 
 return Shared

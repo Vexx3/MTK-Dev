@@ -5,7 +5,7 @@ local Util = require(ReplicatedStorage.Shared.Util)
 
 local Player = Players.LocalPlayer
 local PlayerGui = Player.PlayerGui
-local TowerGui: ScreenGui = PlayerGui:WaitForChild("TowerGui")
+local TowerGui: ScreenGui = PlayerGui:WaitForChild("TowerGUI")
 TowerGui.Enabled = true
 
 local TowerAcronym: TextLabel? = TowerGui:FindFirstChild("TowerAcronym", true) :: TextLabel

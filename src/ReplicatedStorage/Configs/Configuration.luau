@@ -5,6 +5,8 @@ local config = {
 	DATA_STORE_KEY = "Production",
 	TOWER_STAT_NAME = "Towers",
 
+	ADMINS = { 949649253 },
+
 	TIMER_SYNC_INTERVAL = 2,
 	CHECKPOINT_INTERVAL = 0.25,
 	RESTART_COOLDOWN = 3,
@@ -25,9 +27,9 @@ local config = {
 
 	CHAT_FONT = "<font color='{FontColor}' size='{FontSize}' face='{FontFace}'>{Message}</font>",
 	CHAT_CHANNEL = "RBXSystem",
-	CHAT_FONT_FACE = Enum.Font.GothamBold,
+	CHAT_FONT_FACE = "GothamBold",
 	CHAT_FONT_SIZE = 14,
-	CHAT_FANCY_FONT_FACE = Enum.Font.Bodoni,
+	CHAT_FANCY_FONT_FACE = "Bodoni",
 	CHAT_FANCY_FONT_SIZE = 18,
 }
 

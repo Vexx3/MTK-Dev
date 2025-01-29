@@ -7,7 +7,7 @@ local RootDirectory = if IsServer then ServerScriptService else Players.LocalPla
 local ModuleDirectory = if IsServer then RootDirectory.Services else RootDirectory:WaitForChild("Controllers")
 
 local function RequireModule(module: ModuleScript)
-	if not module:IsA("ModuleScript") then
+	if not module:IsA("ModuleScript") or module.Parent and module.Parent.Name == "ScriptRepo" then
 		return
 	end
 

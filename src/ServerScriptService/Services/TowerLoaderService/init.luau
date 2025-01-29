@@ -176,8 +176,8 @@ function Local.InitTower(towerFolder: Folder): TowerInfo
 
 	Towers[acronym] = tower
 
-	for _, v in TowerFolder:GetDescendants() do
-		if v.Name == "Winpad" and v:IsA("BasePart") then
+	for _, v in towerFolder:GetDescendants() do
+		if v.Name == "WinPad" and v:IsA("BasePart") then
 			Local.InitWinpad(acronym, v)
 		end
 	end
@@ -206,7 +206,7 @@ function Local.InitWinpad(towerName: string, winpad: BasePart)
 		BadgeID = Util:GetInt(winpad, "BadgeID") or 0,
 		PreventTowerBadge = Util:GetBoolean(winpad, "PreventTowerBadge") or false,
 		ParentTower = towerName,
-		WinroomMarker = (Util:GetString(winpad, "WinroomMarker") or Util:GetString(winpad, "Winroom")),
+		WinroomMarker = (Util:GetString(winpad, "WinroomMarker") or Util:GetString(winpad, "Winroom") or ""),
 	}
 
 	Local.InitTouchHandler(winpad, { TowerName = towerName, EndingID = endingId })
@@ -225,7 +225,7 @@ function Local.InitPortal(portalPart: BasePart)
 	elseif towerRushValue and towerRushValue:IsA("StringValue") then
 		Local.InitTouchHandler(
 			portalPart,
-			{ TowerName = towerRushValue.Value, portal = { towerRush = { towerRushName = towerRushValue } } }
+			{ TowerName = towerRushValue.Value, portal = { towerRush = { towerRushName = towerRushValue.Value } } }
 		)
 	elseif legacyTowerRush and legacyTowerRush:IsA("ModuleScript") then
 		local towerRushName = Local.ConvertLegacyTowerRush(legacyTowerRush)
@@ -458,7 +458,17 @@ end
 function Local.PlayerLoadTowerRush(playerName: string, towerRushName: string)
 	local player = Players[playerName]
 	local towerRush: TowerRush = TowerRushes[towerRushName]
-	if not (player and towerRush) or player.IsLoadingTower then
+	
+	if not player then
+		return
+	end
+
+	if not towerRush then
+		Util:Warn(`Unknown tower rush "{towerRushName}".`)
+		return
+	end
+
+	if player.IsLoadingTower then
 		return
 	end
 
@@ -477,7 +487,7 @@ end
 function Local.PlayerTouchedWinpad(playerName: string, towerName: string, endingId: string)
 	local player = Players[playerName]
 	local tower = Towers[towerName]
-	if not (player and tower) or player.TouchEventBusy then
+	if not player and tower and player.TouchEventBusy then
 		return
 	end
 
@@ -492,13 +502,19 @@ function Local.PlayerTouchedWinpad(playerName: string, towerName: string, ending
 	end
 
 	if Ending.ParentTower ~= player.CurrentTower then
-		Announcements.AntiCheatKick(player.Player, "Touched the winpad of a tower you're not in.")
+		Announcements:AntiCheatKick(player.Player, "Touched the winpad of a tower you're not in.")
 		return
 	end
 
-	if not player.DebugItemUsed and tower.MinimumTime > 0 and player.TowerTimer < tower.MinimumTime then
-		Announcements.AntiCheatKick(player.Player, "Completed the tower too early")
-		return
+	if not player.DebugItemUsed then
+		if tower.MinimumTime > 0 and player.TowerTimer < tower.MinimumTime then
+			Announcements:AntiCheatKick(player.Player, "Completed the tower too early")
+			return
+		end
+
+		if player.CurrentTowerCheckpoint < tower.CheckpointCount then
+			Announcements:AntiCheatKick(player.Player, "Completed the tower out of order")
+		end
 	end
 
 	if player.CurrentTowerRush == "" then
@@ -512,7 +528,7 @@ function Local.PlayerTouchedWinpad(playerName: string, towerName: string, ending
 			EndingWinroom = Ending.WinroomMarker
 		end
 
-		Announcements.WinAnnouncement(player, EndingName, EndingDifficultyName)
+		Announcements:WinAnnouncement(player, EndingName, EndingDifficultyName)
 
 		if tower.BadgeID ~= 0 and not Ending.PreventTowerBadge then
 			BadgeService:AwardBadge(player.Player.UserId, tower.BadgeID)
@@ -545,7 +561,7 @@ function Local.AdvanceTowerRush(playerName: string)
 	local towerCount = #towerRush.Towers
 
 	if player.CurrentTowerRushIndex == towerCount then
-		Announcements.WinAnnouncement(player, towerRush.Title, towerRush.Difficulty)
+		Announcements:WinAnnouncement(player, towerRush.Title, towerRush.Difficulty)
 
 		if towerRush.BadgeID ~= 0 then
 			BadgeService:AwardBadge(player.Player.UserId, towerRush.BadgeID)

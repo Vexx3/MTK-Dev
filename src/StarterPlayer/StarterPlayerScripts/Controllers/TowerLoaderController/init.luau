@@ -47,7 +47,7 @@ function Shared.OnStart()
     do
         StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.EmotesMenu, false)
 
-        local ECOs: boolean, ECOFolder: Folder? = RemoteFunctions.RestartEverpresentCOs:InvokeServer()
+        local ECOs: boolean, ECOFolder: Folder? = RemoteFunctions.RequestEverpresentCOs:InvokeServer()
         if ECOs and ECOFolder then
             ECOFolder.Parent = workspace
             ClientObjects.LoadClientObjects(ECOFolder, true)
