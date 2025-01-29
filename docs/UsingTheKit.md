@@ -42,9 +42,9 @@ At this point, the tower has been fully implemented. It just needs a portal to b
 
 ## Creating portals
 
-Portals are the parts that load a tower when a player touches it, as well as teleporting them to the tower’s `SpawnLocation`. All portal parts must be put in the `Portals` folder in the `workspace` to work.
+Portals are the parts that load a tower when a player touches it, as well as teleporting them to the tower’s **SpawnLocation**. All portal parts must be put in the `Portals` folder in the `workspace` to work.
 
-To create a portal, start by inserting a `BasePart` into the `Portals` folder. Then, add a `StringValue` to the portal part named `TowerPortal`. Alternatively, you can duplicate any of the portals included with the template place. Set the value of the `TowerPortal` string to the acronym of any tower, more accurately, the name of any folder in the `Towers` folder.
+To create a portal, start by inserting a `BasePart` into the `Portals` folder. Then, add a `StringValue` to the portal part named **TowerPortal**. Alternatively, you can duplicate any of the portals included with the template place. Set the value of the **TowerPortal** string to the acronym of any tower, more accurately, the name of any folder in the `Towers` folder.
 
 ![Example Portal](./images/portals.png)
 
@@ -56,7 +56,7 @@ The parts in the folder does not actually matter.
 
 :::
 
-You can also choose to instead give a `TowerPortal` a `StringValue` named `LobbyTeleporter`. This will turn it into a server-sided teleporter. Set it’s value to the name of any part in the `Markers` folder, and touching it in-game will teleport the player to that marker.
+You can also choose to instead give a **TowerPortal** a `StringValue` named **LobbyTeleporter**. This will turn it into a server-sided teleporter. Set it’s value to the name of any part in the `Markers` folder, and touching it in-game will teleport the player to that marker.
 
 ## Adding anti-cheat checkpoints to a tower
 
@@ -90,7 +90,7 @@ At the moment, checkpoint touch detection works by seeing if the character’s [
 
 :::tip
 
-Make sure the checkpoint parts are reasonably large, as the kit will only check if a player is inside a checkpoint every `0.25 seconds`. This rate can be changed in the `GameData.Config` module, specifically the `CheckpointInterval` property.
+Make sure the checkpoint parts are reasonably large, as the kit will only check if a player is inside a checkpoint every **0.25 seconds**. This rate can be changed in the `GameData.Config` module, specifically the **CheckpointInterval** property.
 
 :::
 
@@ -107,7 +107,7 @@ Aside from this, there’s the markers folder which is useful for placing marker
 - **WinroomSpawn** is also a SpawnLocation, but is specifically attributed to the `Winners` team. It’s also where all win pads will teleport the player by default unless specified otherwise.
 - **LobbyTP** is a server-sided teleporter part. When a player touches it, they will be teleported to the `Start` team’s SpawnLocation, and will be re-assigned to the `Start` team if they aren’t a member already. This should ideally be used in sky lobbies and winrooms.
 
-Any marker without a name listed above doesn’t get any special functionality. They will just be plain parts that don’t do anything on their own. The reason you would need to create parts like these is usually to act as destinations for teleporters. Lobby portals will search the `Markers` folder for a part named the value of it’s `LobbyTeleporter` value. Win pads on the other hand can be optionally configured to teleport to a marker of a specific name instead of the `WinroomSpawn`.
+Any marker without a name listed above doesn’t get any special functionality. They will just be plain parts that don’t do anything on their own. The reason you would need to create parts like these is usually to act as destinations for teleporters. Lobby portals will search the `Markers` folder for a part named the value of it’s **LobbyTeleporter** value. Win pads on the other hand can be optionally configured to teleport to a marker of a specific name instead of the **WinroomSpawn**.
 
 [^1]: Low-Detail Mode (LDM) is a feature in Juke’s Towers of Hell where the Obby folder’s contents of every tower are hidden, unless that tower is being played. However, the frame folder will be left untouched. The point of this feature is to put less stress on lower-end devices by having less things onscreen for the device to render.
 [^2]: Although sometimes the definition is stretched to allow for purely cosmetic client objects, the MTK defines "purist" towers as having no client objects at all.

@@ -139,6 +139,6 @@ If you want to add a boost item, you need to make sure it’s marked as such. Re
 
 :::tip
 
-To mark an item as a boost item, add an attribute to it, name it `BoostName`, and make sure it’s type is `string`. To add a debug item that is only given to players in studio, place it in the `StarterPackStudio` folder, located in `ServerStorage`; It will automatically be marked as a debug item this way.
+To mark an item as a boost item, add an attribute to it, name it **BoostName**, and make sure it’s type is `string`. To add a debug item that is only given to players in studio, place it in the `StarterPackStudio` folder, located in `ServerStorage`; It will automatically be marked as a debug item this way.
 
 :::
