@@ -486,7 +486,11 @@ end
 function Local.PlayerTouchedWinpad(playerName: string, towerName: string, endingId: string)
 	local player = Players[playerName]
 	local tower = Towers[towerName]
-	if not player and tower and player.TouchEventBusy then
+	if not player and tower then
+		return
+	end
+
+	if player.TouchEventBusy then
 		return
 	end
 

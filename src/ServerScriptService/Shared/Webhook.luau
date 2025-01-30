@@ -54,9 +54,9 @@ function Shared:SendMessage(player: PlayerInfo, ending: EndingInfo)
 		:gsub("{EndingName}", ending.Name)
 		:gsub("{EndingEmoji}", endingDifficulty.Emoji)
 		:gsub("{Time}", timeMessage)
-		:gsub("{BoostList}", boostList)
 
-	print(message)
+	local boostMessage = if #boostList > 0 then `\nUsed: {boostList}` else ""
+	message = message .. boostMessage
 
 	local payload = {
 		content = message,
@@ -65,7 +65,7 @@ function Shared:SendMessage(player: PlayerInfo, ending: EndingInfo)
 	local JSONPayload = HttpService:JSONEncode(payload)
 
 	local success, response = pcall(function()
-		return HttpService:PostAsync(webhookUrl, JSONPayload, Enum.HttpContentType.ApplicationJson)
+		return HttpService:PostAsync(webhookUrl, JSONPayload)
 	end)
 
 	if not success then

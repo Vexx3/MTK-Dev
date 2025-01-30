@@ -28,7 +28,7 @@ local config = {
 	WIN_MESSAGE = "{PlayerName} has beaten {EndingName} in {Time}{BoostsUsed}",
 	WIN_MESSAGE_BOOSTS_USED = "Boosts used: {BoostList}",
 
-	WEBHOOK_MESSAGE = "**{PlayerName}** has beaten **{EndingName} [{EndingEmoji}]** in {Time}",
+	WEBHOOK_MESSAGE = "**{PlayerName}** has beaten **{EndingName} [{EndingEmoji}]** in `{Time}`",
 
 	CHAT_FONT = "<font color='{FontColor}' size='{FontSize}' face='{FontFace}'>{Message}</font>",
 	CHAT_CHANNEL = "RBXSystem",
