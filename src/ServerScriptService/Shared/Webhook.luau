@@ -40,8 +40,6 @@ function Shared:SendMessage(player: PlayerInfo, ending: EndingInfo)
 		webhookUrl = WEBHOOKS.Normal
 	end
 
-	webhookUrl:AddPrefix("https://discord.com/")
-
 	local boostsUsed = {}
 	for _, boostName in player.BoostItemNames do
 		table.insert(boostsUsed, boostName)
