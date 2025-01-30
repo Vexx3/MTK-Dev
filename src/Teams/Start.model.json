@@ -1,7 +1,7 @@
 {
   "ClassName": "Team",
   "Properties": {
-    "AutoAssignable": false,
+    "AutoAssignable": true,
     "TeamColor": { "BrickColor": 306 }
   }
 }

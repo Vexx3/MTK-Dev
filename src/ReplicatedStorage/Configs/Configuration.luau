@@ -7,6 +7,9 @@ local config = {
 
 	ADMINS = { 949649253 },
 
+	-- If the difficulty rating is higher or equal than this, it will be considered a sc tower
+	SC_RATING = 8,
+
 	TIMER_SYNC_INTERVAL = 2,
 	CHECKPOINT_INTERVAL = 0.25,
 	RESTART_COOLDOWN = 3,
@@ -23,7 +26,9 @@ local config = {
 	R15_WARNING = true,
 
 	WIN_MESSAGE = "{PlayerName} has beaten {EndingName} in {Time}{BoostsUsed}",
-	WIN_MESSAGE_BOOSTS_USED = ", Boosts used: {BoostList}",
+	WIN_MESSAGE_BOOSTS_USED = "Boosts used: {BoostList}",
+
+	WEBHOOK_MESSAGE = "**{PlayerName}** has beaten **{EndingName} [{EndingEmoji}]** in {Time}",
 
 	CHAT_FONT = "<font color='{FontColor}' size='{FontSize}' face='{FontFace}'>{Message}</font>",
 	CHAT_CHANNEL = "RBXSystem",

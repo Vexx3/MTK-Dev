@@ -1,13 +1,4 @@
 return {
-	Impossible = {
-		Title = "Impossible",
-		Rating = 999,
-
-		FancyFont = false,
-		Color = Color3.fromRGB(255, 255, 255),
-		GlobalAnnouncement = false,
-	},
-
 	Easy = {
 		Title = "Easy",
 		Rating = 1,
@@ -15,6 +6,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(119, 243, 71),
 		GlobalAnnouncement = false,
+		Emoji = "<:Easy:1301038309509955605>",
 	},
 
 	Medium = {
@@ -24,6 +16,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(255, 255, 0),
 		GlobalAnnouncement = false,
+		Emoji = "<:Medium:1301040372608143401>",
 	},
 
 	Hard = {
@@ -33,6 +26,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(255, 124, 0),
 		GlobalAnnouncement = false,
+		Emoji = "<:Hard:1301040697356582933>",
 	},
 
 	Difficult = {
@@ -42,6 +36,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(255, 0, 0),
 		GlobalAnnouncement = false,
+		Emoji = "<:Difficult:1301040794169511977>",
 	},
 
 	Challenging = {
@@ -51,6 +46,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(194, 0, 0),
 		GlobalAnnouncement = false,
+		Emoji = "<:Challenging:1301041033382985789>",
 	},
 
 	Intense = {
@@ -60,6 +56,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(25, 34, 45),
 		GlobalAnnouncement = false,
+		Emoji = "<:Intense:1301041176098508851>",
 	},
 
 	Remorseless = {
@@ -69,6 +66,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(200, 0, 200),
 		GlobalAnnouncement = false,
+		Emoji = "<:Remorseless:1301041291215241321>",
 	},
 
 	Insane = {
@@ -78,6 +76,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(255, 0, 0),
 		GlobalAnnouncement = true,
+		Emoji = "<:Insane:1301041430445162528>",
 	},
 
 	Extreme = {
@@ -87,6 +86,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(2, 128, 255),
 		GlobalAnnouncement = true,
+		Emoji = "<:Extreme:1301041835854004265>",
 	},
 
 	Terrifying = {
@@ -96,6 +96,7 @@ return {
 		FancyFont = false,
 		Color = Color3.fromRGB(0, 255, 255),
 		GlobalAnnouncement = true,
+		Emoji = "<:Terrifying:1301041950010642483>",
 	},
 
 	Catastrophic = {
@@ -105,6 +106,7 @@ return {
 		FancyFont = true,
 		Color = Color3.fromRGB(255, 255, 255),
 		GlobalAnnouncement = true,
+		Emoji = "<:Catastrophic:1301042083179663362>",
 	},
 
 	Horrific = {
@@ -114,6 +116,7 @@ return {
 		FancyFont = true,
 		Color = Color3.fromRGB(150, 150, 255),
 		GlobalAnnouncement = true,
+		Emoji = "<:Horrific:1301042195180163158>",
 	},
 
 	Unreal = {
@@ -123,5 +126,6 @@ return {
 		FancyFont = true,
 		Color = Color3.fromRGB(75, 0, 255),
 		GlobalAnnouncement = true,
+		Emoji = "<:Unreal:1301042369550094367>",
 	},
 }

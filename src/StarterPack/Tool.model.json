@@ -1,0 +1,8 @@
+{
+  "ClassName": "Tool",
+  "Properties": {
+    "Attributes": {
+      "BoostName": { "String": "Example Boost Item" }
+    }
+  }
+}

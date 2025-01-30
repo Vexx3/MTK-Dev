@@ -35,13 +35,12 @@ local RemotesFolder = ReplicatedStorage.Remotes.TowerGame
 
 local RemoteEvents: Dictionary<RemoteEvent> = {}
 local RemoteFunctions: Dictionary<RemoteFunction> = {}
-do
-	for _, v: Instance in RemotesFolder:GetChildren() do
-		if v:IsA("RemoteEvent") then
-			RemoteEvents[v.Name] = v
-		elseif v:IsA("RemoteFunction") then
-			RemoteFunctions[v.Name] = v
-		end
+
+for _, v: Instance in RemotesFolder:GetChildren() do
+	if v:IsA("RemoteEvent") then
+		RemoteEvents[v.Name] = v
+	elseif v:IsA("RemoteFunction") then
+		RemoteFunctions[v.Name] = v
 	end
 end
 
@@ -54,61 +53,61 @@ function Shared.OnStart()
 	MessagingService:SubscribeAsync("GlobalWin", Local.GlobalWinMessage)
 end
 
-function Local:BroadCastWinAnnouncement(Info: WinMessageInfo)
-	local EndingDifficulty = Util:GetDifficulty(Info.DifficultyName)
+function Local:BroadCastWinAnnouncement(info: WinMessageInfo)
+	local endingDifficulty = Util:GetDifficulty(info.DifficultyName)
 
-	local ClientMessageInfo: ClientWinMessageInfo = {
-		PlayerName = Info.PlayerName,
-		EndingName = Info.EndingName,
-		Time = Info.Time,
-		BoostsUsed = Info.BoostsUsed,
-		Color = EndingDifficulty.Color,
-		FancyFont = EndingDifficulty.FancyFont,
+	local clientMessageInfo: ClientWinMessageInfo = {
+		PlayerName = info.PlayerName,
+		EndingName = info.EndingName,
+		Time = info.Time,
+		BoostsUsed = info.BoostsUsed,
+		Color = endingDifficulty.Color,
+		FancyFont = endingDifficulty.FancyFont,
 	}
-	RemoteEvents.GameWinAnnouncement:FireAllClients(ClientMessageInfo)
+	RemoteEvents.GameWinAnnouncement:FireAllClients(clientMessageInfo)
 end
 
-function Local:GlobalWinMessage(Message: Message)
-	local Info: WinMessageInfo = Message.Data
-	if Info.MessageID == LatestGlobalMessageID then
+function Local:GlobalWinMessage(message: Message)
+	local info: WinMessageInfo = message.Data
+	if info.MessageID == LatestGlobalMessageID then
 		return
 	end
 
-	Local:BroadCastWinAnnouncement(Info)
+	Local:BroadCastWinAnnouncement(info)
 end
 
-function Shared:GameAnnouncement(Message: string, Color: Color3, FancyText: boolean?)
-	RemoteEvents.GameAnnouncement:FireAllClients(Message, Color, FancyText)
+function Shared:GameAnnouncement(message: string, color: Color3, fancyText: boolean?)
+	RemoteEvents.GameAnnouncement:FireAllClients(message, color, fancyText)
 end
 
-function Shared:AntiCheatKick(Player: Player, Reason: string)
-	local Message: string = KickMessages[math.random(1, #KickMessages)]:gsub(
+function Shared:AntiCheatKick(player: Player, reason: string)
+	local message: string = KickMessages[math.random(1, #KickMessages)]:gsub(
 		"{Player}",
-		if Configuration.USE_DISPLAY_NAME then Player.DisplayName else Player.Name
+		if Configuration.USE_DISPLAY_NAME then player.DisplayName else player.Name
 	)
 
-	Shared:GameAnnouncement(Message, Color3.new(1, 0, 0))
-	Player:Kick(Reason)
+	Shared:GameAnnouncement(message, Color3.new(1, 0, 0))
+	player:Kick(reason)
 end
 
-function Shared:WinAnnouncement(Player: PlayerInfo, EndingName: string, DifficultyName: string)
-	local EndingDifficulty = Util:GetDifficulty(DifficultyName)
+function Shared:WinAnnouncement(player: PlayerInfo, endingName: string, difficultyName: string)
+	local endingDifficulty = Util:GetDifficulty(difficultyName)
 
-	local Info: WinMessageInfo = {
+	local info: WinMessageInfo = {
 		MessageID = HttpService:GenerateGUID(false),
-		PlayerName = if Configuration.USE_DISPLAY_NAME then Player.Player.DisplayName else Player.Player.Name,
-		EndingName = EndingName,
-		DifficultyName = DifficultyName,
-		Time = Player.TowerTimer,
-		BoostsUsed = Player.BoostItemNames,
+		PlayerName = if Configuration.USE_DISPLAY_NAME then player.Player.DisplayName else player.Player.Name,
+		EndingName = endingName,
+		DifficultyName = difficultyName,
+		Time = player.TowerTimer,
+		BoostsUsed = player.BoostItemNames,
 	}
 
-	if EndingDifficulty.GlobalAnnouncement then
-		LatestGlobalMessageID = Info.MessageID
-		MessagingService:PublishAsync("GlobalWin", Info)
+	if endingDifficulty.GlobalAnnouncement then
+		LatestGlobalMessageID = info.MessageID
+		MessagingService:PublishAsync("GlobalWin", info)
 	end
 
-    Local:BroadCastWinAnnouncement(Info)
+	Local:BroadCastWinAnnouncement(info)
 end
 
 return Shared

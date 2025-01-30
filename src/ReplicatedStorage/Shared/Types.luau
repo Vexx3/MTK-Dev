@@ -118,6 +118,7 @@ export type TowerRush = {
 .FancyFont boolean -- Determines if 20pt Bodoni should be used as the font when displaying a win message, instead of the standard 18pt Source Sans Bold. In JToH, Bodoni font win messages are used for Catastrophic difficulty and above.
 .Color Color3 -- The color of this difficulty, normally used for win messages.
 .GlobalAnnouncement boolean -- If set to true, victors of any tower/tower rush of this difficulty will have their win messages broadcast throughout the entire game, on other servers.
+.Emoji string -- The emoji that should be used in the win message for this difficulty. This emoji should be a string that can be used in a Discord message.
 ]=]
 export type DifficultyInfo = {
 	Rating: number,
@@ -125,6 +126,7 @@ export type DifficultyInfo = {
 	FancyFont: boolean,
 	Color: Color3,
 	GlobalAnnouncement: boolean,
+	Emoji: string,
 }
 
 export type ClientWinMessageInfo = {

@@ -63,8 +63,12 @@ end
 
 function Local.LoadTower(acronym: string, purist: boolean, resetTimer: boolean)
 	currentTower = acronym
-	towerTimer = if resetTimer then 0 else towerTimer
+	if resetTimer then
+        towerTimer = 0
+        GUI:SetBoostsUsed(false)
+	end
 
+    GUI:SetTowerAcronym(acronym)
 	ResetEffectGui:Fire()
 
 	restartTime = 0
@@ -130,7 +134,7 @@ function Local.onStepped(deltaTime: number)
     else
         towerTimer += deltaTime
 
-        if UserInputService:IsKeyDown(Enum.KeyCode.R) then
+        if UserInputService:IsKeyDown(Enum.KeyCode.R) and not UserInputService:GetFocusedTextBox() then
             if not restartDebounce then
                 restartTime = math.min(restartTime + deltaTime, RESTART_TIME_MAX)
                 if restartTime >= RESTART_TIME_MAX then

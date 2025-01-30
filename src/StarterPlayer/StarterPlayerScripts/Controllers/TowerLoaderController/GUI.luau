@@ -17,14 +17,12 @@ local RestartLabel: TextLabel? = TowerGui:FindFirstChild("RestartLabel", true) :
 local RestartTransparency = 0
 local RestartStrokeTransparency = 1
 
-local Shared = {}
-
-function Shared.OnStart()
-	if RestartLabel then
-		RestartTransparency = RestartLabel.TextTransparency
-		RestartStrokeTransparency = RestartLabel.TextStrokeTransparency
-	end
+if RestartLabel then
+	RestartTransparency = RestartLabel.TextTransparency
+	RestartStrokeTransparency = RestartLabel.TextStrokeTransparency
 end
+
+local Shared = {}
 
 function Shared:SetTowerAcronym(acronym: string)
 	if TowerAcronym then

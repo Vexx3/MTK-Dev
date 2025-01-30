@@ -13,6 +13,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local TowerRushes = require(Configs.TowerRushes)
 local Util = require(ReplicatedStorage.Shared.Util)
 local WinpadMaterials = require(script.WinpadMaterials)
+local Webhook = require(script.Parent.Parent.Shared.Webhook)
 
 type Dictionary<T> = Types.Dictionary<T>
 type List<T> = Types.List<T>
@@ -43,13 +44,11 @@ local RemoteFunctions: Dictionary<RemoteFunction> = {}
 
 local LEGACY_TOWER_RUSHES = 0
 
-do
-	for _, v: Instance in RemotesFolder:GetChildren() do
-		if v:IsA("RemoteEvent") then
-			RemoteEvents[v.Name] = v
-		elseif v:IsA("RemoteFunction") then
-			RemoteFunctions[v.Name] = v
-		end
+for _, v: Instance in RemotesFolder:GetChildren() do
+	if v:IsA("RemoteEvent") then
+		RemoteEvents[v.Name] = v
+	elseif v:IsA("RemoteFunction") then
+		RemoteFunctions[v.Name] = v
 	end
 end
 
@@ -111,7 +110,7 @@ function Shared.OnStart()
 	end
 end
 
-function Local.InitTower(towerFolder: Folder): TowerInfo
+function Local.InitTower(towerFolder: Folder)
 	local acronym = towerFolder.Name
 	local spawnLocation = towerFolder:FindFirstChild("SpawnLocation")
 	assert(spawnLocation and spawnLocation:IsA("BasePart"), `{acronym} does not have a valid SpawnLocation!`)
@@ -458,7 +457,7 @@ end
 function Local.PlayerLoadTowerRush(playerName: string, towerRushName: string)
 	local player = Players[playerName]
 	local towerRush: TowerRush = TowerRushes[towerRushName]
-	
+
 	if not player then
 		return
 	end
@@ -529,7 +528,8 @@ function Local.PlayerTouchedWinpad(playerName: string, towerName: string, ending
 		end
 
 		Announcements:WinAnnouncement(player, EndingName, EndingDifficultyName)
-
+		Webhook:SendMessage(player, Ending)
+		
 		if tower.BadgeID ~= 0 and not Ending.PreventTowerBadge then
 			BadgeService:AwardBadge(player.Player.UserId, tower.BadgeID)
 		end

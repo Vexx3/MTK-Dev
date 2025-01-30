@@ -30,27 +30,16 @@ function Shared:DisplayWinMessage(info: ClientWinMessageInfo)
 		table.insert(boostsUsed, boostName)
 	end
 
+	local boostList = if #boostsUsed > 0 then table.concat(boostsUsed, ", ") else ""
+
 	local message = Configuration.WIN_MESSAGE
-	message = message:gsub("{PlayerName}", info.PlayerName)
-	message = message:gsub("{EndingName}", info.EndingName)
-	message = message:gsub("{Time}", "{Time:" .. tostring(info.Time) .. "}")
+		:gsub("{PlayerName}", info.PlayerName)
+		:gsub("{EndingName}", info.EndingName)
+		:gsub("{Time}", "{Time:" .. tostring(info.Time) .. "}")
+		:gsub("{BoostsUsed}", if #boostsUsed > 0 then `\n{Configuration.WIN_MESSAGE_BOOSTS_USED}` else "")
+		:gsub("{BoostList}", boostList)
 
-	if #boostsUsed > 0 then
-		local boostList = ""
-		for i, boostName in boostsUsed do
-			boostList ..= boostName
-			if i < #boostsUsed then
-				boostList ..= ", "
-			end
-		end
-
-		message = message:gsub("{BoostsUsed}", Configuration.WIN_MESSAGE_BOOSTS_USED)
-		message = message:gsub("{BoostList}", boostList)
-	else
-		message = message:gsub("{BoostsUsed}", "")
-	end
-
-    Shared:DisplayMessage(message, info.Color, info.FancyFont)
+	Shared:DisplayMessage(message, info.Color, info.FancyFont)
 end
 
 function Shared:DisplayMessage(message: string, color: Color3, fancyText: boolean?)
@@ -77,10 +66,10 @@ function Shared:DisplayMessage(message: string, color: Color3, fancyText: boolea
 	local sizeString = if fancyText then Configuration.CHAT_FANCY_FONT_SIZE else Configuration.CHAT_FONT_SIZE
 
 	local finalMessage = Configuration.CHAT_FONT
-	finalMessage = finalMessage:gsub("{FontColor}", colorString)
-	finalMessage = finalMessage:gsub("{FontFace}", faceString)
-	finalMessage = finalMessage:gsub("{FontSize}", sizeString)
-	finalMessage = finalMessage:gsub("{Message}", timeMessage)
+		:gsub("{FontColor}", colorString)
+		:gsub("{FontFace}", faceString)
+		:gsub("{FontSize}", sizeString)
+		:gsub("{Message}", timeMessage)
 
 	TextChannel:DisplaySystemMessage(finalMessage, "MTKSystem")
 end
